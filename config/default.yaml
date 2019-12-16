@@ -1,12 +1,1 @@
----
 port: 50051
-mongosslAuth: false
-brokers:
-  endPoints: "127.0.0.1:9092"
-  version: ""
-  group: ""
-  topics: ""
-grpcClients:
-  ai: "localhost:50052"
-  learn: "learn:50051"
-  users: "users:50051"

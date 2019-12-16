@@ -7,7 +7,7 @@ service Message_pusher {
   rpc PingPong(stream Ping) returns (stream Pong) {}
 }
 
-message Message { string say = 1; }
+message Message { bytes msg = 1; int64 msgId = 2; int64 groupId = 3; }
 
 message Request { string name = 1; }
 
