@@ -2,4 +2,4 @@
 
 # mikudos-message-pusher
 
-mikudos-message-pusher
+mikudos-message-pusher as mikudos plugin use GRPC in Golang.
