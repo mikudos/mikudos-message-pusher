@@ -2,7 +2,7 @@ syntax = "proto3";
 package message_pusher;
 
 service Message_pusher {
-  rpc Call(Request) returns (Response) {}
+  rpc Call(Message) returns (Message) {}
   rpc Stream(StreamingRequest) returns (stream StreamingResponse) {}
   rpc PingPong(stream Ping) returns (stream Pong) {}
 }
