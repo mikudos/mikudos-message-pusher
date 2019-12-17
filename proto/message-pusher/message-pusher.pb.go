@@ -3,14 +3,13 @@
 
 package message_pusher
 
+import proto "github.com/golang/protobuf/proto"
+import fmt "fmt"
+import math "math"
+
 import (
-	context "context"
-	fmt "fmt"
-	proto "github.com/golang/protobuf/proto"
+	context "golang.org/x/net/context"
 	grpc "google.golang.org/grpc"
-	codes "google.golang.org/grpc/codes"
-	status "google.golang.org/grpc/status"
-	math "math"
 )
 
 // Reference imports to suppress errors if they are not otherwise used.
@@ -22,12 +21,12 @@ var _ = math.Inf
 // is compatible with the proto package it is being compiled against.
 // A compilation error at this line likely means your copy of the
 // proto package needs to be updated.
-const _ = proto.ProtoPackageIsVersion3 // please upgrade the proto package
+const _ = proto.ProtoPackageIsVersion2 // please upgrade the proto package
 
 type Message struct {
 	Msg                  []byte   `protobuf:"bytes,1,opt,name=msg,proto3" json:"msg,omitempty"`
 	MsgId                int64    `protobuf:"varint,2,opt,name=msgId,proto3" json:"msgId,omitempty"`
-	GroupId              int64    `protobuf:"varint,3,opt,name=groupId,proto3" json:"groupId,omitempty"`
+	GroupId              string   `protobuf:"bytes,3,opt,name=groupId,proto3" json:"groupId,omitempty"`
 	XXX_NoUnkeyedLiteral struct{} `json:"-"`
 	XXX_unrecognized     []byte   `json:"-"`
 	XXX_sizecache        int32    `json:"-"`
@@ -37,17 +36,16 @@ func (m *Message) Reset()         { *m = Message{} }
 func (m *Message) String() string { return proto.CompactTextString(m) }
 func (*Message) ProtoMessage()    {}
 func (*Message) Descriptor() ([]byte, []int) {
-	return fileDescriptor_23ef910bf9ada3da, []int{0}
+	return fileDescriptor_message_pusher_9004a3c58df680e4, []int{0}
 }
-
 func (m *Message) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_Message.Unmarshal(m, b)
 }
 func (m *Message) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
 	return xxx_messageInfo_Message.Marshal(b, m, deterministic)
 }
-func (m *Message) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_Message.Merge(m, src)
+func (dst *Message) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_Message.Merge(dst, src)
 }
 func (m *Message) XXX_Size() int {
 	return xxx_messageInfo_Message.Size(m)
@@ -72,11 +70,11 @@ func (m *Message) GetMsgId() int64 {
 	return 0
 }
 
-func (m *Message) GetGroupId() int64 {
+func (m *Message) GetGroupId() string {
 	if m != nil {
 		return m.GroupId
 	}
-	return 0
+	return ""
 }
 
 type Request struct {
@@ -90,17 +88,16 @@ func (m *Request) Reset()         { *m = Request{} }
 func (m *Request) String() string { return proto.CompactTextString(m) }
 func (*Request) ProtoMessage()    {}
 func (*Request) Descriptor() ([]byte, []int) {
-	return fileDescriptor_23ef910bf9ada3da, []int{1}
+	return fileDescriptor_message_pusher_9004a3c58df680e4, []int{1}
 }
-
 func (m *Request) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_Request.Unmarshal(m, b)
 }
 func (m *Request) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
 	return xxx_messageInfo_Request.Marshal(b, m, deterministic)
 }
-func (m *Request) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_Request.Merge(m, src)
+func (dst *Request) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_Request.Merge(dst, src)
 }
 func (m *Request) XXX_Size() int {
 	return xxx_messageInfo_Request.Size(m)
@@ -129,17 +126,16 @@ func (m *Response) Reset()         { *m = Response{} }
 func (m *Response) String() string { return proto.CompactTextString(m) }
 func (*Response) ProtoMessage()    {}
 func (*Response) Descriptor() ([]byte, []int) {
-	return fileDescriptor_23ef910bf9ada3da, []int{2}
+	return fileDescriptor_message_pusher_9004a3c58df680e4, []int{2}
 }
-
 func (m *Response) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_Response.Unmarshal(m, b)
 }
 func (m *Response) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
 	return xxx_messageInfo_Response.Marshal(b, m, deterministic)
 }
-func (m *Response) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_Response.Merge(m, src)
+func (dst *Response) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_Response.Merge(dst, src)
 }
 func (m *Response) XXX_Size() int {
 	return xxx_messageInfo_Response.Size(m)
@@ -168,17 +164,16 @@ func (m *StreamingRequest) Reset()         { *m = StreamingRequest{} }
 func (m *StreamingRequest) String() string { return proto.CompactTextString(m) }
 func (*StreamingRequest) ProtoMessage()    {}
 func (*StreamingRequest) Descriptor() ([]byte, []int) {
-	return fileDescriptor_23ef910bf9ada3da, []int{3}
+	return fileDescriptor_message_pusher_9004a3c58df680e4, []int{3}
 }
-
 func (m *StreamingRequest) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_StreamingRequest.Unmarshal(m, b)
 }
 func (m *StreamingRequest) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
 	return xxx_messageInfo_StreamingRequest.Marshal(b, m, deterministic)
 }
-func (m *StreamingRequest) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_StreamingRequest.Merge(m, src)
+func (dst *StreamingRequest) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_StreamingRequest.Merge(dst, src)
 }
 func (m *StreamingRequest) XXX_Size() int {
 	return xxx_messageInfo_StreamingRequest.Size(m)
@@ -196,45 +191,6 @@ func (m *StreamingRequest) GetCount() int64 {
 	return 0
 }
 
-type StreamingResponse struct {
-	Count                int64    `protobuf:"varint,1,opt,name=count,proto3" json:"count,omitempty"`
-	XXX_NoUnkeyedLiteral struct{} `json:"-"`
-	XXX_unrecognized     []byte   `json:"-"`
-	XXX_sizecache        int32    `json:"-"`
-}
-
-func (m *StreamingResponse) Reset()         { *m = StreamingResponse{} }
-func (m *StreamingResponse) String() string { return proto.CompactTextString(m) }
-func (*StreamingResponse) ProtoMessage()    {}
-func (*StreamingResponse) Descriptor() ([]byte, []int) {
-	return fileDescriptor_23ef910bf9ada3da, []int{4}
-}
-
-func (m *StreamingResponse) XXX_Unmarshal(b []byte) error {
-	return xxx_messageInfo_StreamingResponse.Unmarshal(m, b)
-}
-func (m *StreamingResponse) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
-	return xxx_messageInfo_StreamingResponse.Marshal(b, m, deterministic)
-}
-func (m *StreamingResponse) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_StreamingResponse.Merge(m, src)
-}
-func (m *StreamingResponse) XXX_Size() int {
-	return xxx_messageInfo_StreamingResponse.Size(m)
-}
-func (m *StreamingResponse) XXX_DiscardUnknown() {
-	xxx_messageInfo_StreamingResponse.DiscardUnknown(m)
-}
-
-var xxx_messageInfo_StreamingResponse proto.InternalMessageInfo
-
-func (m *StreamingResponse) GetCount() int64 {
-	if m != nil {
-		return m.Count
-	}
-	return 0
-}
-
 type Ping struct {
 	Stroke               int64    `protobuf:"varint,1,opt,name=stroke,proto3" json:"stroke,omitempty"`
 	XXX_NoUnkeyedLiteral struct{} `json:"-"`
@@ -246,17 +202,16 @@ func (m *Ping) Reset()         { *m = Ping{} }
 func (m *Ping) String() string { return proto.CompactTextString(m) }
 func (*Ping) ProtoMessage()    {}
 func (*Ping) Descriptor() ([]byte, []int) {
-	return fileDescriptor_23ef910bf9ada3da, []int{5}
+	return fileDescriptor_message_pusher_9004a3c58df680e4, []int{4}
 }
-
 func (m *Ping) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_Ping.Unmarshal(m, b)
 }
 func (m *Ping) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
 	return xxx_messageInfo_Ping.Marshal(b, m, deterministic)
 }
-func (m *Ping) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_Ping.Merge(m, src)
+func (dst *Ping) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_Ping.Merge(dst, src)
 }
 func (m *Ping) XXX_Size() int {
 	return xxx_messageInfo_Ping.Size(m)
@@ -285,17 +240,16 @@ func (m *Pong) Reset()         { *m = Pong{} }
 func (m *Pong) String() string { return proto.CompactTextString(m) }
 func (*Pong) ProtoMessage()    {}
 func (*Pong) Descriptor() ([]byte, []int) {
-	return fileDescriptor_23ef910bf9ada3da, []int{6}
+	return fileDescriptor_message_pusher_9004a3c58df680e4, []int{5}
 }
-
 func (m *Pong) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_Pong.Unmarshal(m, b)
 }
 func (m *Pong) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
 	return xxx_messageInfo_Pong.Marshal(b, m, deterministic)
 }
-func (m *Pong) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_Pong.Merge(m, src)
+func (dst *Pong) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_Pong.Merge(dst, src)
 }
 func (m *Pong) XXX_Size() int {
 	return xxx_messageInfo_Pong.Size(m)
@@ -318,36 +272,8 @@ func init() {
 	proto.RegisterType((*Request)(nil), "message_pusher.Request")
 	proto.RegisterType((*Response)(nil), "message_pusher.Response")
 	proto.RegisterType((*StreamingRequest)(nil), "message_pusher.StreamingRequest")
-	proto.RegisterType((*StreamingResponse)(nil), "message_pusher.StreamingResponse")
 	proto.RegisterType((*Ping)(nil), "message_pusher.Ping")
 	proto.RegisterType((*Pong)(nil), "message_pusher.Pong")
-}
-
-func init() {
-	proto.RegisterFile("proto/message-pusher/message-pusher.proto", fileDescriptor_23ef910bf9ada3da)
-}
-
-var fileDescriptor_23ef910bf9ada3da = []byte{
-	// 293 bytes of a gzipped FileDescriptorProto
-	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0x7c, 0x92, 0x51, 0x4f, 0x83, 0x30,
-	0x14, 0x85, 0xa9, 0x30, 0xd8, 0x6e, 0xcc, 0x32, 0x6f, 0x88, 0x12, 0xa2, 0x06, 0xfb, 0xc4, 0x1e,
-	0xc4, 0x45, 0xdf, 0x8c, 0x6f, 0x3e, 0x2d, 0x66, 0x89, 0xd6, 0x1f, 0x60, 0xd0, 0x35, 0x75, 0x71,
-	0xb4, 0x48, 0xe1, 0xe7, 0xfa, 0x5f, 0x0c, 0x2d, 0x4b, 0x04, 0x9d, 0x6f, 0x3d, 0xe7, 0x7c, 0xdc,
-	0x72, 0x6e, 0x0a, 0xf3, 0xb2, 0x52, 0xb5, 0xba, 0x2a, 0xb8, 0xd6, 0xb9, 0xe0, 0x97, 0x65, 0xa3,
-	0xdf, 0x79, 0x35, 0x90, 0x99, 0x61, 0x70, 0xda, 0xb9, 0x2f, 0xd6, 0xa5, 0x0f, 0x10, 0xac, 0xac,
-	0x83, 0x33, 0x70, 0x0b, 0x2d, 0x22, 0x92, 0x90, 0xf4, 0x90, 0xb5, 0x47, 0x0c, 0x61, 0x54, 0x68,
-	0xb1, 0x5c, 0x47, 0x07, 0x09, 0x49, 0x5d, 0x66, 0x05, 0x46, 0x10, 0x88, 0x4a, 0x35, 0xe5, 0x72,
-	0x1d, 0xb9, 0xc6, 0xdf, 0x49, 0x7a, 0x06, 0x01, 0xe3, 0x9f, 0x0d, 0xd7, 0x35, 0x22, 0x78, 0x32,
-	0x2f, 0xb8, 0x99, 0x36, 0x61, 0xe6, 0x4c, 0x4f, 0x61, 0xcc, 0xb8, 0x2e, 0x95, 0xd4, 0xbd, 0xcb,
-	0x26, 0xe6, 0x32, 0x9a, 0xc2, 0xec, 0xb9, 0xae, 0x78, 0x5e, 0x6c, 0xa4, 0xd8, 0x4d, 0x09, 0x61,
-	0xf4, 0xa6, 0x1a, 0x59, 0x1b, 0xce, 0x65, 0x56, 0xd0, 0x39, 0x1c, 0xfd, 0x20, 0xbb, 0x81, 0x7f,
-	0xa3, 0xe7, 0xe0, 0x3d, 0x6e, 0xa4, 0xc0, 0x63, 0xf0, 0x75, 0x5d, 0xa9, 0x0f, 0xde, 0xc5, 0x9d,
-	0x32, 0xb9, 0xda, 0x9f, 0x5f, 0x7f, 0x11, 0x98, 0xae, 0x7a, 0x1b, 0xc3, 0x5b, 0xf0, 0xee, 0xf3,
-	0xed, 0x16, 0x4f, 0xb2, 0xfe, 0x2a, 0xb3, 0x8e, 0x8b, 0xf7, 0x05, 0xd4, 0xc1, 0x27, 0xf0, 0xed,
-	0x9f, 0x63, 0x32, 0x84, 0x86, 0xdd, 0xe3, 0x8b, 0x7f, 0x08, 0xdb, 0x99, 0x3a, 0x0b, 0x82, 0x77,
-	0x30, 0x6e, 0x1b, 0x9a, 0x16, 0xe1, 0xf0, 0x93, 0x36, 0x89, 0x7f, 0xbb, 0x4a, 0x0a, 0xea, 0xa4,
-	0x64, 0x41, 0x5e, 0x7d, 0xf3, 0x2a, 0x6e, 0xbe, 0x03, 0x00, 0x00, 0xff, 0xff, 0xbd, 0xd8, 0xf7,
-	0xcf, 0x42, 0x02, 0x00, 0x00,
 }
 
 // Reference imports to suppress errors if they are not otherwise used.
@@ -362,9 +288,9 @@ const _ = grpc.SupportPackageIsVersion4
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://godoc.org/google.golang.org/grpc#ClientConn.NewStream.
 type MessagePusherClient interface {
-	Call(ctx context.Context, in *Message, opts ...grpc.CallOption) (*Message, error)
-	Stream(ctx context.Context, in *StreamingRequest, opts ...grpc.CallOption) (MessagePusher_StreamClient, error)
-	PingPong(ctx context.Context, opts ...grpc.CallOption) (MessagePusher_PingPongClient, error)
+	PushToChannel(ctx context.Context, in *Message, opts ...grpc.CallOption) (*Response, error)
+	PushToChannelWithStatus(ctx context.Context, in *Message, opts ...grpc.CallOption) (*Response, error)
+	GateStream(ctx context.Context, opts ...grpc.CallOption) (MessagePusher_GateStreamClient, error)
 }
 
 type messagePusherClient struct {
@@ -375,72 +301,49 @@ func NewMessagePusherClient(cc *grpc.ClientConn) MessagePusherClient {
 	return &messagePusherClient{cc}
 }
 
-func (c *messagePusherClient) Call(ctx context.Context, in *Message, opts ...grpc.CallOption) (*Message, error) {
-	out := new(Message)
-	err := c.cc.Invoke(ctx, "/message_pusher.Message_pusher/Call", in, out, opts...)
+func (c *messagePusherClient) PushToChannel(ctx context.Context, in *Message, opts ...grpc.CallOption) (*Response, error) {
+	out := new(Response)
+	err := c.cc.Invoke(ctx, "/message_pusher.Message_pusher/PushToChannel", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-func (c *messagePusherClient) Stream(ctx context.Context, in *StreamingRequest, opts ...grpc.CallOption) (MessagePusher_StreamClient, error) {
-	stream, err := c.cc.NewStream(ctx, &_MessagePusher_serviceDesc.Streams[0], "/message_pusher.Message_pusher/Stream", opts...)
+func (c *messagePusherClient) PushToChannelWithStatus(ctx context.Context, in *Message, opts ...grpc.CallOption) (*Response, error) {
+	out := new(Response)
+	err := c.cc.Invoke(ctx, "/message_pusher.Message_pusher/PushToChannelWithStatus", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
-	x := &messagePusherStreamClient{stream}
-	if err := x.ClientStream.SendMsg(in); err != nil {
-		return nil, err
-	}
-	if err := x.ClientStream.CloseSend(); err != nil {
-		return nil, err
-	}
-	return x, nil
+	return out, nil
 }
 
-type MessagePusher_StreamClient interface {
-	Recv() (*StreamingResponse, error)
-	grpc.ClientStream
-}
-
-type messagePusherStreamClient struct {
-	grpc.ClientStream
-}
-
-func (x *messagePusherStreamClient) Recv() (*StreamingResponse, error) {
-	m := new(StreamingResponse)
-	if err := x.ClientStream.RecvMsg(m); err != nil {
-		return nil, err
-	}
-	return m, nil
-}
-
-func (c *messagePusherClient) PingPong(ctx context.Context, opts ...grpc.CallOption) (MessagePusher_PingPongClient, error) {
-	stream, err := c.cc.NewStream(ctx, &_MessagePusher_serviceDesc.Streams[1], "/message_pusher.Message_pusher/PingPong", opts...)
+func (c *messagePusherClient) GateStream(ctx context.Context, opts ...grpc.CallOption) (MessagePusher_GateStreamClient, error) {
+	stream, err := c.cc.NewStream(ctx, &_MessagePusher_serviceDesc.Streams[0], "/message_pusher.Message_pusher/GateStream", opts...)
 	if err != nil {
 		return nil, err
 	}
-	x := &messagePusherPingPongClient{stream}
+	x := &messagePusherGateStreamClient{stream}
 	return x, nil
 }
 
-type MessagePusher_PingPongClient interface {
-	Send(*Ping) error
-	Recv() (*Pong, error)
+type MessagePusher_GateStreamClient interface {
+	Send(*Response) error
+	Recv() (*Message, error)
 	grpc.ClientStream
 }
 
-type messagePusherPingPongClient struct {
+type messagePusherGateStreamClient struct {
 	grpc.ClientStream
 }
 
-func (x *messagePusherPingPongClient) Send(m *Ping) error {
+func (x *messagePusherGateStreamClient) Send(m *Response) error {
 	return x.ClientStream.SendMsg(m)
 }
 
-func (x *messagePusherPingPongClient) Recv() (*Pong, error) {
-	m := new(Pong)
+func (x *messagePusherGateStreamClient) Recv() (*Message, error) {
+	m := new(Message)
 	if err := x.ClientStream.RecvMsg(m); err != nil {
 		return nil, err
 	}
@@ -449,88 +352,71 @@ func (x *messagePusherPingPongClient) Recv() (*Pong, error) {
 
 // MessagePusherServer is the server API for MessagePusher service.
 type MessagePusherServer interface {
-	Call(context.Context, *Message) (*Message, error)
-	Stream(*StreamingRequest, MessagePusher_StreamServer) error
-	PingPong(MessagePusher_PingPongServer) error
-}
-
-// UnimplementedMessagePusherServer can be embedded to have forward compatible implementations.
-type UnimplementedMessagePusherServer struct {
-}
-
-func (*UnimplementedMessagePusherServer) Call(ctx context.Context, req *Message) (*Message, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method Call not implemented")
-}
-func (*UnimplementedMessagePusherServer) Stream(req *StreamingRequest, srv MessagePusher_StreamServer) error {
-	return status.Errorf(codes.Unimplemented, "method Stream not implemented")
-}
-func (*UnimplementedMessagePusherServer) PingPong(srv MessagePusher_PingPongServer) error {
-	return status.Errorf(codes.Unimplemented, "method PingPong not implemented")
+	PushToChannel(context.Context, *Message) (*Response, error)
+	PushToChannelWithStatus(context.Context, *Message) (*Response, error)
+	GateStream(MessagePusher_GateStreamServer) error
 }
 
 func RegisterMessagePusherServer(s *grpc.Server, srv MessagePusherServer) {
 	s.RegisterService(&_MessagePusher_serviceDesc, srv)
 }
 
-func _MessagePusher_Call_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _MessagePusher_PushToChannel_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(Message)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(MessagePusherServer).Call(ctx, in)
+		return srv.(MessagePusherServer).PushToChannel(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/message_pusher.Message_pusher/Call",
+		FullMethod: "/message_pusher.Message_pusher/PushToChannel",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(MessagePusherServer).Call(ctx, req.(*Message))
+		return srv.(MessagePusherServer).PushToChannel(ctx, req.(*Message))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _MessagePusher_Stream_Handler(srv interface{}, stream grpc.ServerStream) error {
-	m := new(StreamingRequest)
-	if err := stream.RecvMsg(m); err != nil {
-		return err
+func _MessagePusher_PushToChannelWithStatus_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(Message)
+	if err := dec(in); err != nil {
+		return nil, err
 	}
-	return srv.(MessagePusherServer).Stream(m, &messagePusherStreamServer{stream})
+	if interceptor == nil {
+		return srv.(MessagePusherServer).PushToChannelWithStatus(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/message_pusher.Message_pusher/PushToChannelWithStatus",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(MessagePusherServer).PushToChannelWithStatus(ctx, req.(*Message))
+	}
+	return interceptor(ctx, in, info, handler)
 }
 
-type MessagePusher_StreamServer interface {
-	Send(*StreamingResponse) error
+func _MessagePusher_GateStream_Handler(srv interface{}, stream grpc.ServerStream) error {
+	return srv.(MessagePusherServer).GateStream(&messagePusherGateStreamServer{stream})
+}
+
+type MessagePusher_GateStreamServer interface {
+	Send(*Message) error
+	Recv() (*Response, error)
 	grpc.ServerStream
 }
 
-type messagePusherStreamServer struct {
+type messagePusherGateStreamServer struct {
 	grpc.ServerStream
 }
 
-func (x *messagePusherStreamServer) Send(m *StreamingResponse) error {
+func (x *messagePusherGateStreamServer) Send(m *Message) error {
 	return x.ServerStream.SendMsg(m)
 }
 
-func _MessagePusher_PingPong_Handler(srv interface{}, stream grpc.ServerStream) error {
-	return srv.(MessagePusherServer).PingPong(&messagePusherPingPongServer{stream})
-}
-
-type MessagePusher_PingPongServer interface {
-	Send(*Pong) error
-	Recv() (*Ping, error)
-	grpc.ServerStream
-}
-
-type messagePusherPingPongServer struct {
-	grpc.ServerStream
-}
-
-func (x *messagePusherPingPongServer) Send(m *Pong) error {
-	return x.ServerStream.SendMsg(m)
-}
-
-func (x *messagePusherPingPongServer) Recv() (*Ping, error) {
-	m := new(Ping)
+func (x *messagePusherGateStreamServer) Recv() (*Response, error) {
+	m := new(Response)
 	if err := x.ServerStream.RecvMsg(m); err != nil {
 		return nil, err
 	}
@@ -542,22 +428,47 @@ var _MessagePusher_serviceDesc = grpc.ServiceDesc{
 	HandlerType: (*MessagePusherServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{
-			MethodName: "Call",
-			Handler:    _MessagePusher_Call_Handler,
+			MethodName: "PushToChannel",
+			Handler:    _MessagePusher_PushToChannel_Handler,
+		},
+		{
+			MethodName: "PushToChannelWithStatus",
+			Handler:    _MessagePusher_PushToChannelWithStatus_Handler,
 		},
 	},
 	Streams: []grpc.StreamDesc{
 		{
-			StreamName:    "Stream",
-			Handler:       _MessagePusher_Stream_Handler,
-			ServerStreams: true,
-		},
-		{
-			StreamName:    "PingPong",
-			Handler:       _MessagePusher_PingPong_Handler,
+			StreamName:    "GateStream",
+			Handler:       _MessagePusher_GateStream_Handler,
 			ServerStreams: true,
 			ClientStreams: true,
 		},
 	},
 	Metadata: "proto/message-pusher/message-pusher.proto",
+}
+
+func init() {
+	proto.RegisterFile("proto/message-pusher/message-pusher.proto", fileDescriptor_message_pusher_9004a3c58df680e4)
+}
+
+var fileDescriptor_message_pusher_9004a3c58df680e4 = []byte{
+	// 287 bytes of a gzipped FileDescriptorProto
+	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0x9c, 0x51, 0xdd, 0x4a, 0xc3, 0x30,
+	0x14, 0x5e, 0xec, 0x7e, 0xec, 0x41, 0xc7, 0x08, 0xc3, 0x95, 0xa1, 0x52, 0x72, 0x55, 0x2f, 0xac,
+	0xa2, 0x8f, 0xa0, 0x22, 0x43, 0x26, 0x23, 0x13, 0xbc, 0x94, 0xe8, 0x42, 0x5a, 0xb4, 0x49, 0xed,
+	0x49, 0x1e, 0xdb, 0x77, 0x10, 0xd3, 0xf6, 0xa2, 0x83, 0xde, 0x78, 0x77, 0xbe, 0x9f, 0x7c, 0x87,
+	0x7c, 0x07, 0x2e, 0xca, 0xca, 0x58, 0x73, 0x55, 0x48, 0x44, 0xa1, 0xe4, 0x65, 0xe9, 0x30, 0x93,
+	0xd5, 0x1e, 0x4c, 0xbd, 0x87, 0x4e, 0x1b, 0xf6, 0xad, 0x66, 0xd9, 0x13, 0x4c, 0xd6, 0x35, 0x43,
+	0x67, 0x10, 0x14, 0xa8, 0x22, 0x12, 0x93, 0xe4, 0x88, 0xff, 0x8d, 0x74, 0x0e, 0xa3, 0x02, 0xd5,
+	0x6a, 0x17, 0x1d, 0xc4, 0x24, 0x09, 0x78, 0x0d, 0x68, 0x04, 0x13, 0x55, 0x19, 0x57, 0xae, 0x76,
+	0x51, 0x10, 0x93, 0x24, 0xe4, 0x2d, 0x64, 0x67, 0x30, 0xe1, 0xf2, 0xdb, 0x49, 0xb4, 0x94, 0xc2,
+	0x50, 0x8b, 0x42, 0xfa, 0xb4, 0x90, 0xfb, 0x99, 0x9d, 0xc2, 0x21, 0x97, 0x58, 0x1a, 0x8d, 0x9d,
+	0x65, 0xa1, 0x5f, 0xc6, 0x12, 0x98, 0x6d, 0x6d, 0x25, 0x45, 0x91, 0x6b, 0xd5, 0xa6, 0xcc, 0x61,
+	0xf4, 0x61, 0x9c, 0xb6, 0xde, 0x17, 0xf0, 0x1a, 0xb0, 0x73, 0x18, 0x6e, 0x72, 0xad, 0xe8, 0x09,
+	0x8c, 0xd1, 0x56, 0xe6, 0x53, 0x36, 0x72, 0x83, 0xbc, 0x6e, 0xfa, 0xf5, 0x9b, 0x1f, 0x02, 0xd3,
+	0x75, 0xa7, 0x06, 0x7a, 0x0f, 0xc7, 0x1b, 0x87, 0xd9, 0x8b, 0xb9, 0xcb, 0x84, 0xd6, 0xf2, 0x8b,
+	0x2e, 0xd2, 0x6e, 0x51, 0x69, 0xf3, 0x60, 0x19, 0xed, 0x0b, 0xed, 0x97, 0xd8, 0x80, 0x3e, 0xc3,
+	0xa2, 0x93, 0xf2, 0x9a, 0xdb, 0x6c, 0x6b, 0x85, 0x75, 0xf8, 0xbf, 0xbc, 0x07, 0x80, 0x47, 0x61,
+	0x65, 0x5d, 0x0b, 0xed, 0x75, 0x2e, 0xfb, 0xc2, 0xd9, 0x20, 0x21, 0xd7, 0xe4, 0x7d, 0xec, 0x4f,
+	0x7f, 0xfb, 0x1b, 0x00, 0x00, 0xff, 0xff, 0xdb, 0x4c, 0xb5, 0x3b, 0x27, 0x02, 0x00, 0x00,
 }
