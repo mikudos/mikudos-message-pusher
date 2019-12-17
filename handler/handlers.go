@@ -10,30 +10,21 @@ import (
 )
 
 type Server struct {
-	pb.MessagePusherServer
-}
-
-var MsgChan *MessageChan
-
-func init() {
-	MsgChan = &MessageChan{recv: make(chan *pb.Message), resp: make(chan *pb.Response)}
-}
-
-type MessageChan struct {
-	recv chan *pb.Message
-	resp chan *pb.Response
+	Recv chan *pb.Message
+	Resp chan *pb.Response
+	Done chan bool
 }
 
 func (s *Server) PushToChannel(ctx context.Context, req *pb.Message) (*pb.Response, error) {
-	MsgChan.recv <- req
+	s.Recv <- req
 	msg := &pb.Response{}
 	return msg, nil
 }
 
 func (s *Server) PushToChannelWithStatus(ctx context.Context, req *pb.Message) (*pb.Response, error) {
-	MsgChan.recv <- req
+	s.Recv <- req
 	for {
-		resp := <-MsgChan.resp
+		resp := <-s.Resp
 		if resp.Msg == "" {
 			return resp, nil
 		}
@@ -44,22 +35,24 @@ func (s *Server) GateStream(stream pb.MessagePusher_GateStreamServer) (err error
 	fmt.Printf("Received ComputeAverage RPC\n")
 	// s.recv = make(chan *pb.Message)
 
-	go func(stream pb.MessagePusher_GateStreamServer) {
-		for {
-			resp, err := stream.Recv()
-			if err == io.EOF {
-				break
-			}
-			if err != nil {
-				log.Fatalf("Error while reading client stream: %v", err)
-			}
-			MsgChan.resp <- resp
+	go func() {
+		select {
+		case <-s.Done:
+			return
+		case msg := <-s.Recv:
+			stream.Send(msg)
 		}
-	}(stream)
+	}()
 
-	select {
-	case msg := <-MsgChan.recv:
-		stream.Send(msg)
+	for {
+		resp, err := stream.Recv()
+		if err == io.EOF {
+			break
+		}
+		if err != nil {
+			log.Fatalf("Error while reading client stream: %v", err)
+		}
+		s.Resp <- resp
 	}
 
 	return err
