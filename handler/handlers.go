@@ -32,8 +32,7 @@ func (s *Server) PushToChannelWithStatus(ctx context.Context, req *pb.Message) (
 }
 
 func (s *Server) GateStream(stream pb.MessagePusher_GateStreamServer) (err error) {
-	fmt.Printf("Received ComputeAverage RPC\n")
-	// s.recv = make(chan *pb.Message)
+	fmt.Printf("Received GateStream request\n")
 
 	go func() {
 		select {
