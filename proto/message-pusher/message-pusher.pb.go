@@ -3,13 +3,14 @@
 
 package message_pusher
 
-import proto "github.com/golang/protobuf/proto"
-import fmt "fmt"
-import math "math"
-
 import (
-	context "golang.org/x/net/context"
+	context "context"
+	fmt "fmt"
+	proto "github.com/golang/protobuf/proto"
 	grpc "google.golang.org/grpc"
+	codes "google.golang.org/grpc/codes"
+	status "google.golang.org/grpc/status"
+	math "math"
 )
 
 // Reference imports to suppress errors if they are not otherwise used.
@@ -21,7 +22,7 @@ var _ = math.Inf
 // is compatible with the proto package it is being compiled against.
 // A compilation error at this line likely means your copy of the
 // proto package needs to be updated.
-const _ = proto.ProtoPackageIsVersion2 // please upgrade the proto package
+const _ = proto.ProtoPackageIsVersion3 // please upgrade the proto package
 
 type Message struct {
 	Msg                  []byte   `protobuf:"bytes,1,opt,name=msg,proto3" json:"msg,omitempty"`
@@ -36,16 +37,17 @@ func (m *Message) Reset()         { *m = Message{} }
 func (m *Message) String() string { return proto.CompactTextString(m) }
 func (*Message) ProtoMessage()    {}
 func (*Message) Descriptor() ([]byte, []int) {
-	return fileDescriptor_message_pusher_9004a3c58df680e4, []int{0}
+	return fileDescriptor_23ef910bf9ada3da, []int{0}
 }
+
 func (m *Message) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_Message.Unmarshal(m, b)
 }
 func (m *Message) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
 	return xxx_messageInfo_Message.Marshal(b, m, deterministic)
 }
-func (dst *Message) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_Message.Merge(dst, src)
+func (m *Message) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_Message.Merge(m, src)
 }
 func (m *Message) XXX_Size() int {
 	return xxx_messageInfo_Message.Size(m)
@@ -88,16 +90,17 @@ func (m *Request) Reset()         { *m = Request{} }
 func (m *Request) String() string { return proto.CompactTextString(m) }
 func (*Request) ProtoMessage()    {}
 func (*Request) Descriptor() ([]byte, []int) {
-	return fileDescriptor_message_pusher_9004a3c58df680e4, []int{1}
+	return fileDescriptor_23ef910bf9ada3da, []int{1}
 }
+
 func (m *Request) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_Request.Unmarshal(m, b)
 }
 func (m *Request) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
 	return xxx_messageInfo_Request.Marshal(b, m, deterministic)
 }
-func (dst *Request) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_Request.Merge(dst, src)
+func (m *Request) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_Request.Merge(m, src)
 }
 func (m *Request) XXX_Size() int {
 	return xxx_messageInfo_Request.Size(m)
@@ -126,16 +129,17 @@ func (m *Response) Reset()         { *m = Response{} }
 func (m *Response) String() string { return proto.CompactTextString(m) }
 func (*Response) ProtoMessage()    {}
 func (*Response) Descriptor() ([]byte, []int) {
-	return fileDescriptor_message_pusher_9004a3c58df680e4, []int{2}
+	return fileDescriptor_23ef910bf9ada3da, []int{2}
 }
+
 func (m *Response) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_Response.Unmarshal(m, b)
 }
 func (m *Response) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
 	return xxx_messageInfo_Response.Marshal(b, m, deterministic)
 }
-func (dst *Response) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_Response.Merge(dst, src)
+func (m *Response) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_Response.Merge(m, src)
 }
 func (m *Response) XXX_Size() int {
 	return xxx_messageInfo_Response.Size(m)
@@ -164,16 +168,17 @@ func (m *StreamingRequest) Reset()         { *m = StreamingRequest{} }
 func (m *StreamingRequest) String() string { return proto.CompactTextString(m) }
 func (*StreamingRequest) ProtoMessage()    {}
 func (*StreamingRequest) Descriptor() ([]byte, []int) {
-	return fileDescriptor_message_pusher_9004a3c58df680e4, []int{3}
+	return fileDescriptor_23ef910bf9ada3da, []int{3}
 }
+
 func (m *StreamingRequest) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_StreamingRequest.Unmarshal(m, b)
 }
 func (m *StreamingRequest) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
 	return xxx_messageInfo_StreamingRequest.Marshal(b, m, deterministic)
 }
-func (dst *StreamingRequest) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_StreamingRequest.Merge(dst, src)
+func (m *StreamingRequest) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_StreamingRequest.Merge(m, src)
 }
 func (m *StreamingRequest) XXX_Size() int {
 	return xxx_messageInfo_StreamingRequest.Size(m)
@@ -202,16 +207,17 @@ func (m *Ping) Reset()         { *m = Ping{} }
 func (m *Ping) String() string { return proto.CompactTextString(m) }
 func (*Ping) ProtoMessage()    {}
 func (*Ping) Descriptor() ([]byte, []int) {
-	return fileDescriptor_message_pusher_9004a3c58df680e4, []int{4}
+	return fileDescriptor_23ef910bf9ada3da, []int{4}
 }
+
 func (m *Ping) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_Ping.Unmarshal(m, b)
 }
 func (m *Ping) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
 	return xxx_messageInfo_Ping.Marshal(b, m, deterministic)
 }
-func (dst *Ping) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_Ping.Merge(dst, src)
+func (m *Ping) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_Ping.Merge(m, src)
 }
 func (m *Ping) XXX_Size() int {
 	return xxx_messageInfo_Ping.Size(m)
@@ -240,16 +246,17 @@ func (m *Pong) Reset()         { *m = Pong{} }
 func (m *Pong) String() string { return proto.CompactTextString(m) }
 func (*Pong) ProtoMessage()    {}
 func (*Pong) Descriptor() ([]byte, []int) {
-	return fileDescriptor_message_pusher_9004a3c58df680e4, []int{5}
+	return fileDescriptor_23ef910bf9ada3da, []int{5}
 }
+
 func (m *Pong) XXX_Unmarshal(b []byte) error {
 	return xxx_messageInfo_Pong.Unmarshal(m, b)
 }
 func (m *Pong) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
 	return xxx_messageInfo_Pong.Marshal(b, m, deterministic)
 }
-func (dst *Pong) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_Pong.Merge(dst, src)
+func (m *Pong) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_Pong.Merge(m, src)
 }
 func (m *Pong) XXX_Size() int {
 	return xxx_messageInfo_Pong.Size(m)
@@ -274,6 +281,32 @@ func init() {
 	proto.RegisterType((*StreamingRequest)(nil), "message_pusher.StreamingRequest")
 	proto.RegisterType((*Ping)(nil), "message_pusher.Ping")
 	proto.RegisterType((*Pong)(nil), "message_pusher.Pong")
+}
+
+func init() {
+	proto.RegisterFile("proto/message-pusher/message-pusher.proto", fileDescriptor_23ef910bf9ada3da)
+}
+
+var fileDescriptor_23ef910bf9ada3da = []byte{
+	// 287 bytes of a gzipped FileDescriptorProto
+	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0x9c, 0x51, 0xdd, 0x4a, 0xc3, 0x30,
+	0x14, 0x5e, 0xec, 0x7e, 0xec, 0x41, 0xc7, 0x08, 0xc3, 0x95, 0xa1, 0x52, 0x72, 0x55, 0x2f, 0xac,
+	0xa2, 0x8f, 0xa0, 0x22, 0x43, 0x26, 0x23, 0x13, 0xbc, 0x94, 0xe8, 0x42, 0x5a, 0xb4, 0x49, 0xed,
+	0x49, 0x1e, 0xdb, 0x77, 0x10, 0xd3, 0xf6, 0xa2, 0x83, 0xde, 0x78, 0x77, 0xbe, 0x9f, 0x7c, 0x87,
+	0x7c, 0x07, 0x2e, 0xca, 0xca, 0x58, 0x73, 0x55, 0x48, 0x44, 0xa1, 0xe4, 0x65, 0xe9, 0x30, 0x93,
+	0xd5, 0x1e, 0x4c, 0xbd, 0x87, 0x4e, 0x1b, 0xf6, 0xad, 0x66, 0xd9, 0x13, 0x4c, 0xd6, 0x35, 0x43,
+	0x67, 0x10, 0x14, 0xa8, 0x22, 0x12, 0x93, 0xe4, 0x88, 0xff, 0x8d, 0x74, 0x0e, 0xa3, 0x02, 0xd5,
+	0x6a, 0x17, 0x1d, 0xc4, 0x24, 0x09, 0x78, 0x0d, 0x68, 0x04, 0x13, 0x55, 0x19, 0x57, 0xae, 0x76,
+	0x51, 0x10, 0x93, 0x24, 0xe4, 0x2d, 0x64, 0x67, 0x30, 0xe1, 0xf2, 0xdb, 0x49, 0xb4, 0x94, 0xc2,
+	0x50, 0x8b, 0x42, 0xfa, 0xb4, 0x90, 0xfb, 0x99, 0x9d, 0xc2, 0x21, 0x97, 0x58, 0x1a, 0x8d, 0x9d,
+	0x65, 0xa1, 0x5f, 0xc6, 0x12, 0x98, 0x6d, 0x6d, 0x25, 0x45, 0x91, 0x6b, 0xd5, 0xa6, 0xcc, 0x61,
+	0xf4, 0x61, 0x9c, 0xb6, 0xde, 0x17, 0xf0, 0x1a, 0xb0, 0x73, 0x18, 0x6e, 0x72, 0xad, 0xe8, 0x09,
+	0x8c, 0xd1, 0x56, 0xe6, 0x53, 0x36, 0x72, 0x83, 0xbc, 0x6e, 0xfa, 0xf5, 0x9b, 0x1f, 0x02, 0xd3,
+	0x75, 0xa7, 0x06, 0x7a, 0x0f, 0xc7, 0x1b, 0x87, 0xd9, 0x8b, 0xb9, 0xcb, 0x84, 0xd6, 0xf2, 0x8b,
+	0x2e, 0xd2, 0x6e, 0x51, 0x69, 0xf3, 0x60, 0x19, 0xed, 0x0b, 0xed, 0x97, 0xd8, 0x80, 0x3e, 0xc3,
+	0xa2, 0x93, 0xf2, 0x9a, 0xdb, 0x6c, 0x6b, 0x85, 0x75, 0xf8, 0xbf, 0xbc, 0x07, 0x80, 0x47, 0x61,
+	0x65, 0x5d, 0x0b, 0xed, 0x75, 0x2e, 0xfb, 0xc2, 0xd9, 0x20, 0x21, 0xd7, 0xe4, 0x7d, 0xec, 0x4f,
+	0x7f, 0xfb, 0x1b, 0x00, 0x00, 0xff, 0xff, 0xdb, 0x4c, 0xb5, 0x3b, 0x27, 0x02, 0x00, 0x00,
 }
 
 // Reference imports to suppress errors if they are not otherwise used.
@@ -355,6 +388,20 @@ type MessagePusherServer interface {
 	PushToChannel(context.Context, *Message) (*Response, error)
 	PushToChannelWithStatus(context.Context, *Message) (*Response, error)
 	GateStream(MessagePusher_GateStreamServer) error
+}
+
+// UnimplementedMessagePusherServer can be embedded to have forward compatible implementations.
+type UnimplementedMessagePusherServer struct {
+}
+
+func (*UnimplementedMessagePusherServer) PushToChannel(ctx context.Context, req *Message) (*Response, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method PushToChannel not implemented")
+}
+func (*UnimplementedMessagePusherServer) PushToChannelWithStatus(ctx context.Context, req *Message) (*Response, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method PushToChannelWithStatus not implemented")
+}
+func (*UnimplementedMessagePusherServer) GateStream(srv MessagePusher_GateStreamServer) error {
+	return status.Errorf(codes.Unimplemented, "method GateStream not implemented")
 }
 
 func RegisterMessagePusherServer(s *grpc.Server, srv MessagePusherServer) {
@@ -445,30 +492,4 @@ var _MessagePusher_serviceDesc = grpc.ServiceDesc{
 		},
 	},
 	Metadata: "proto/message-pusher/message-pusher.proto",
-}
-
-func init() {
-	proto.RegisterFile("proto/message-pusher/message-pusher.proto", fileDescriptor_message_pusher_9004a3c58df680e4)
-}
-
-var fileDescriptor_message_pusher_9004a3c58df680e4 = []byte{
-	// 287 bytes of a gzipped FileDescriptorProto
-	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0x9c, 0x51, 0xdd, 0x4a, 0xc3, 0x30,
-	0x14, 0x5e, 0xec, 0x7e, 0xec, 0x41, 0xc7, 0x08, 0xc3, 0x95, 0xa1, 0x52, 0x72, 0x55, 0x2f, 0xac,
-	0xa2, 0x8f, 0xa0, 0x22, 0x43, 0x26, 0x23, 0x13, 0xbc, 0x94, 0xe8, 0x42, 0x5a, 0xb4, 0x49, 0xed,
-	0x49, 0x1e, 0xdb, 0x77, 0x10, 0xd3, 0xf6, 0xa2, 0x83, 0xde, 0x78, 0x77, 0xbe, 0x9f, 0x7c, 0x87,
-	0x7c, 0x07, 0x2e, 0xca, 0xca, 0x58, 0x73, 0x55, 0x48, 0x44, 0xa1, 0xe4, 0x65, 0xe9, 0x30, 0x93,
-	0xd5, 0x1e, 0x4c, 0xbd, 0x87, 0x4e, 0x1b, 0xf6, 0xad, 0x66, 0xd9, 0x13, 0x4c, 0xd6, 0x35, 0x43,
-	0x67, 0x10, 0x14, 0xa8, 0x22, 0x12, 0x93, 0xe4, 0x88, 0xff, 0x8d, 0x74, 0x0e, 0xa3, 0x02, 0xd5,
-	0x6a, 0x17, 0x1d, 0xc4, 0x24, 0x09, 0x78, 0x0d, 0x68, 0x04, 0x13, 0x55, 0x19, 0x57, 0xae, 0x76,
-	0x51, 0x10, 0x93, 0x24, 0xe4, 0x2d, 0x64, 0x67, 0x30, 0xe1, 0xf2, 0xdb, 0x49, 0xb4, 0x94, 0xc2,
-	0x50, 0x8b, 0x42, 0xfa, 0xb4, 0x90, 0xfb, 0x99, 0x9d, 0xc2, 0x21, 0x97, 0x58, 0x1a, 0x8d, 0x9d,
-	0x65, 0xa1, 0x5f, 0xc6, 0x12, 0x98, 0x6d, 0x6d, 0x25, 0x45, 0x91, 0x6b, 0xd5, 0xa6, 0xcc, 0x61,
-	0xf4, 0x61, 0x9c, 0xb6, 0xde, 0x17, 0xf0, 0x1a, 0xb0, 0x73, 0x18, 0x6e, 0x72, 0xad, 0xe8, 0x09,
-	0x8c, 0xd1, 0x56, 0xe6, 0x53, 0x36, 0x72, 0x83, 0xbc, 0x6e, 0xfa, 0xf5, 0x9b, 0x1f, 0x02, 0xd3,
-	0x75, 0xa7, 0x06, 0x7a, 0x0f, 0xc7, 0x1b, 0x87, 0xd9, 0x8b, 0xb9, 0xcb, 0x84, 0xd6, 0xf2, 0x8b,
-	0x2e, 0xd2, 0x6e, 0x51, 0x69, 0xf3, 0x60, 0x19, 0xed, 0x0b, 0xed, 0x97, 0xd8, 0x80, 0x3e, 0xc3,
-	0xa2, 0x93, 0xf2, 0x9a, 0xdb, 0x6c, 0x6b, 0x85, 0x75, 0xf8, 0xbf, 0xbc, 0x07, 0x80, 0x47, 0x61,
-	0x65, 0x5d, 0x0b, 0xed, 0x75, 0x2e, 0xfb, 0xc2, 0xd9, 0x20, 0x21, 0xd7, 0xe4, 0x7d, 0xec, 0x4f,
-	0x7f, 0xfb, 0x1b, 0x00, 0x00, 0xff, 0xff, 0xdb, 0x4c, 0xb5, 0x3b, 0x27, 0x02, 0x00, 0x00,
 }
