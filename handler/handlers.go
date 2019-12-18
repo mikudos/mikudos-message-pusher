@@ -2,31 +2,62 @@ package handler
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"io"
 	"log"
 
 	pb "github.com/mikudos/mikudos-message-pusher/proto/message-pusher"
+	"google.golang.org/grpc/metadata"
 )
 
 // Server implement Message-Pusher Server
 type Server struct {
-	Recv     chan *pb.Message
-	Resp     chan *pb.Response
-	Returned map[string]map[int64]chan *pb.Response
-	Done     chan bool
+	Mode      string
+	Recv      chan *pb.Message
+	Returned  map[string]map[int64]chan *pb.Response
+	GroupRecv map[string]chan *pb.Message
+	EveryRecv map[int]chan *pb.Message
 }
 
 // PushToChannel push message to the message Gate
 func (s *Server) PushToChannel(ctx context.Context, req *pb.Message) (*pb.Response, error) {
-	s.Recv <- req
+	switch s.Mode {
+	case "every":
+		for _, Ch := range s.EveryRecv {
+			Ch <- req
+		}
+		break
+	case "group":
+		for _, Ch := range s.GroupRecv {
+			Ch <- req
+		}
+		break
+	case "unify":
+		s.Recv <- req
+		break
+	}
 	res := &pb.Response{MsgId: req.MsgId, ChannelId: req.ChannelId}
 	return res, nil
 }
 
 // PushToChannelWithStatus push message to the message Gate and wait for result
 func (s *Server) PushToChannelWithStatus(ctx context.Context, req *pb.Message) (*pb.Response, error) {
-	s.Recv <- req
+	switch s.Mode {
+	case "every":
+		for _, Ch := range s.EveryRecv {
+			Ch <- req
+		}
+		break
+	case "group":
+		for _, Ch := range s.GroupRecv {
+			Ch <- req
+		}
+		break
+	case "unify":
+		s.Recv <- req
+		break
+	}
 	mid := req.GetMsgId()
 	channelID := req.GetChannelId()
 	if s.Returned[channelID] == nil {
@@ -46,19 +77,42 @@ func (s *Server) PushToChannelWithStatus(ctx context.Context, req *pb.Message) (
 
 // GateStream gate stream communication
 func (s *Server) GateStream(stream pb.MessagePusher_GateStreamServer) (err error) {
-	fmt.Printf("Received GateStream request\n")
-
+	var (
+		GateId  int
+		GroupId string
+	)
+	if md, ok := metadata.FromIncomingContext(stream.Context()); ok {
+		if len(md["group"]) > 0 {
+			GroupId = md["group"][0]
+		}
+	}
+	switch s.Mode {
+	case "every":
+		GateId = len(s.EveryRecv)
+		s.EveryRecv[GateId] = make(chan *pb.Message)
+		break
+	case "group":
+		if GroupId == "" {
+			err = errors.New("METADATA of group cannot be empty")
+			return err
+		}
+		s.GroupRecv[GroupId] = make(chan *pb.Message)
+		break
+	}
 	go func() {
 		defer fmt.Printf("GateStream break\n")
 		for {
 			select {
-			case <-s.Done:
+			case <-stream.Context().Done():
 				return
 			case msg := <-s.Recv:
 				stream.Send(msg)
 				break
-			case resp := <-s.Resp:
-				fmt.Printf("receive Gate response: %v\n", resp)
+			case msg := <-s.GroupRecv[GroupId]:
+				stream.Send(msg)
+				break
+			case msg := <-s.EveryRecv[GateId]:
+				stream.Send(msg)
 				break
 			}
 		}
@@ -67,15 +121,18 @@ func (s *Server) GateStream(stream pb.MessagePusher_GateStreamServer) (err error
 	for {
 		resp, err := stream.Recv()
 		if err == io.EOF {
-			s.Done <- true
 			break
 		}
 		if err != nil {
-			s.Done <- true
 			break
-			log.Fatalf("Error while reading client stream: %v", err)
 		}
-		s.Resp <- resp
+		channelID := resp.GetChannelId()
+		msgId := resp.GetMsgId()
+		if s.Returned[channelID] != nil && s.Returned[channelID][msgId] != nil {
+			s.Returned[channelID][msgId] <- resp
+		} else {
+			log.Printf("channelID: %v\n", channelID)
+		}
 	}
 	fmt.Printf("GateStream break\n")
 	return err

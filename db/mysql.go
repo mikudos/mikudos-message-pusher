@@ -109,7 +109,7 @@ func (s *MySQLStorage) GetPrivate(key string, mid int64) ([]*pb.Message, error) 
 			log.Warn("user_key: \"%s\" mid: %d expired", key, cmid)
 			continue
 		}
-		msgs = append(msgs, &pb.Message{MsgId: cmid, GroupId: 0, Msg: json.RawMessage(msg)})
+		msgs = append(msgs, &pb.Message{MsgId: cmid, ChannelId: "", Msg: json.RawMessage(msg)})
 	}
 	return msgs, nil
 }
