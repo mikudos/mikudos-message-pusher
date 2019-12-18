@@ -9,14 +9,20 @@ service Message_pusher {
 }
 
 message Message {
-  bytes msg = 1;
-  int64 msgId = 2;
-  string groupId = 3;
+  int64 id = 1;
+  bytes msg = 2;
+  string channelId = 3;
+  int64 msgId = 4;
 }
 
 message Request { string name = 1; }
 
-message Response { string msg = 1; }
+message Response {
+  int64 msgId = 1;
+  string channelId = 2;
+  bool received = 3;
+  bool request = 4;
+}
 
 message StreamingRequest { int64 count = 1; }
 
