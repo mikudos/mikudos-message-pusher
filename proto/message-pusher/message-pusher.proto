@@ -20,8 +20,9 @@ message Request { string name = 1; }
 message Response {
   int64 msgId = 1;
   string channelId = 2;
-  bool received = 3;
-  bool request = 4;
+  bytes msg = 3;
+  bool received = 4;
+  bool request = 5;
 }
 
 message StreamingRequest { int64 count = 1; }

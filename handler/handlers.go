@@ -13,6 +13,7 @@ import (
 
 // Server implement Message-Pusher Server
 type Server struct {
+	streamId  int
 	Mode      string
 	Recv      chan *pb.Message
 	Returned  map[string]map[int64]chan *pb.Response
@@ -20,8 +21,7 @@ type Server struct {
 	EveryRecv map[int]chan *pb.Message
 }
 
-// PushToChannel push message to the message Gate
-func (s *Server) PushToChannel(ctx context.Context, req *pb.Message) (*pb.Response, error) {
+func (s *Server) pushToModeChannel(req *pb.Message) {
 	switch s.Mode {
 	case "every":
 		for _, Ch := range s.EveryRecv {
@@ -37,27 +37,18 @@ func (s *Server) PushToChannel(ctx context.Context, req *pb.Message) (*pb.Respon
 		s.Recv <- req
 		break
 	}
+}
+
+// PushToChannel push message to the message Gate
+func (s *Server) PushToChannel(ctx context.Context, req *pb.Message) (*pb.Response, error) {
+	s.pushToModeChannel(req)
 	res := &pb.Response{MsgId: req.MsgId, ChannelId: req.ChannelId}
 	return res, nil
 }
 
 // PushToChannelWithStatus push message to the message Gate and wait for result
 func (s *Server) PushToChannelWithStatus(ctx context.Context, req *pb.Message) (*pb.Response, error) {
-	switch s.Mode {
-	case "every":
-		for _, Ch := range s.EveryRecv {
-			Ch <- req
-		}
-		break
-	case "group":
-		for _, Ch := range s.GroupRecv {
-			Ch <- req
-		}
-		break
-	case "unify":
-		s.Recv <- req
-		break
-	}
+	s.pushToModeChannel(req)
 	mid := req.GetMsgId()
 	channelID := req.GetChannelId()
 	if s.Returned[channelID] == nil {
@@ -88,7 +79,8 @@ func (s *Server) GateStream(stream pb.MessagePusher_GateStreamServer) (err error
 	}
 	switch s.Mode {
 	case "every":
-		GateId = len(s.EveryRecv)
+		s.streamId += 1
+		GateId = s.streamId
 		s.EveryRecv[GateId] = make(chan *pb.Message)
 		break
 	case "group":
@@ -104,6 +96,7 @@ func (s *Server) GateStream(stream pb.MessagePusher_GateStreamServer) (err error
 		for {
 			select {
 			case <-stream.Context().Done():
+				delete(s.EveryRecv, GateId)
 				return
 			case msg := <-s.Recv:
 				stream.Send(msg)
@@ -128,6 +121,9 @@ func (s *Server) GateStream(stream pb.MessagePusher_GateStreamServer) (err error
 		}
 		channelID := resp.GetChannelId()
 		msgId := resp.GetMsgId()
+		if !resp.GetReceived() { // message not received
+			// msg := resp.GetMsg()
+		}
 		if s.Returned[channelID] != nil && s.Returned[channelID][msgId] != nil {
 			s.Returned[channelID][msgId] <- resp
 		} else {
