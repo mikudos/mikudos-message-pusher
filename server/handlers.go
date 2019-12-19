@@ -13,15 +13,15 @@ import (
 
 // PushToChannel push message to the message Gate
 func (s *Server) PushToChannel(ctx context.Context, req *pb.PushMessage) (*pb.Response, error) {
-	s.pushToModeChannel(&pb.Message{Msg: req.GetMsg(), ChannelId: req.GetChannelId(), MsgId: req.GetMsgId(), Expire: req.GetExpire()})
-	res := &pb.Response{MsgId: req.MsgId, ChannelId: req.ChannelId}
+	s.pushToModeChannel(&pb.Message{Msg: req.GetMsg(), ChannelId: req.GetChannelId(), MsgId: s.AID, Expire: req.GetExpire()})
+	res := &pb.Response{MsgId: s.AID, ChannelId: req.ChannelId}
 	return res, nil
 }
 
 // PushToChannelWithStatus push message to the message Gate and wait for result
 func (s *Server) PushToChannelWithStatus(ctx context.Context, req *pb.PushMessage) (*pb.Response, error) {
-	s.pushToModeChannel(&pb.Message{Msg: req.GetMsg(), ChannelId: req.GetChannelId(), MsgId: req.GetMsgId(), Expire: req.GetExpire()})
-	mid := req.GetMsgId()
+	s.pushToModeChannel(&pb.Message{Msg: req.GetMsg(), ChannelId: req.GetChannelId(), MsgId: s.AID, Expire: req.GetExpire()})
+	mid := s.AID
 	channelID := req.GetChannelId()
 	if s.Returned[channelID] == nil {
 		s.Returned[channelID] = map[int64]chan *pb.Response{mid: make(chan *pb.Response, 1)}

@@ -16,7 +16,6 @@ message ConfigResponse {}
 message PushMessage {
   bytes msg = 2;
   string channelId = 3;
-  int64 msgId = 4;
   int32 expire = 5;
 }
 

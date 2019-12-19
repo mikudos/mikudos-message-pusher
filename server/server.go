@@ -1,14 +1,13 @@
 package server
 
 import (
-	"fmt"
-
 	"github.com/mikudos/mikudos-message-pusher/db"
 	pb "github.com/mikudos/mikudos-message-pusher/proto/message-pusher"
 )
 
 // Server implement Message-Pusher Server
 type Server struct {
+	AID       int64
 	streamID  int
 	Mode      string
 	Recv      chan *pb.Message
@@ -19,8 +18,15 @@ type Server struct {
 	Storage   db.Storage
 }
 
+func (s *Server) increment() {
+	if s.AID > 9999999999999 {
+		s.AID = 0
+	}
+	s.AID++
+}
+
 func (s *Server) pushToModeChannel(req *pb.Message) {
-	fmt.Printf("push msg: %v\n", req)
+	s.increment()
 	switch s.Mode {
 	case "every":
 		for _, Ch := range s.EveryRecv {
