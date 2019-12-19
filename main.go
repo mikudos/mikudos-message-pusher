@@ -7,8 +7,8 @@ import (
 	"os"
 	"strconv"
 
-	"github.com/mikudos/mikudos-message-pusher/handler"
 	pb "github.com/mikudos/mikudos-message-pusher/proto/message-pusher"
+	"github.com/mikudos/mikudos-message-pusher/server"
 
 	"github.com/mikudos/mikudos-message-pusher/config"
 
@@ -30,7 +30,7 @@ func main() {
 
 	s := grpc.NewServer() //新建gRPC实例
 
-	pb.RegisterMessagePusherServer(s, &handler.Handler) //在gRPC服务器注册服务实现
+	pb.RegisterMessagePusherServer(s, &server.Handler) //在gRPC服务器注册服务实现
 	log.Println(fmt.Sprintf("server start at port: %d", port))
 	if err := s.Serve(lis); err != nil { //Serve()阻塞等待
 		log.Fatalf("failed to serve: %v", err)

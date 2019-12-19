@@ -1,1 +1,2 @@
 port: 50051
+mode: "group"

@@ -33,14 +33,14 @@ type Storage interface {
 }
 
 // InitStorage init the storage type(mysql or redis).
-func InitStorage() error {
+func InitStorage() (Storage, error) {
 	if Conf.StorageType == RedisStorageType {
 		UseStorage = NewRedisStorage()
 	} else if Conf.StorageType == MySQLStorageType {
 		UseStorage = NewMySQLStorage()
 	} else {
 		log.Error("unknown storage type: \"%s\"", Conf.StorageType)
-		return ErrStorageType
+		return nil, ErrStorageType
 	}
-	return nil
+	return UseStorage, nil
 }

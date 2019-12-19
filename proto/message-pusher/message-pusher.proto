@@ -2,17 +2,23 @@ syntax = "proto3";
 package message_pusher;
 
 service Message_pusher {
+  rpc GetConfig(ConfigRequest) returns (ConfigResponse) {}
   rpc PushToChannel(Message) returns (Response) {}
   rpc PushToChannelWithStatus(Message) returns (Response) {}
   rpc GateStream(stream Response) returns (stream Message) {
   } // Gate communicate
 }
 
+message ConfigRequest { repeated string Keys = 1; }
+
+message ConfigResponse {}
+
 message Message {
   int64 id = 1;
   bytes msg = 2;
   string channelId = 3;
   int64 msgId = 4;
+  int32 expire = 5;
 }
 
 message Request { string name = 1; }
@@ -21,8 +27,9 @@ message Response {
   int64 msgId = 1;
   string channelId = 2;
   bytes msg = 3;
-  bool received = 4;
-  bool request = 5;
+  int32 expire = 4;
+  bool received = 5;
+  bool request = 6;
 }
 
 message StreamingRequest { int64 count = 1; }

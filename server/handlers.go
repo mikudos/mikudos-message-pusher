@@ -1,4 +1,4 @@
-package handler
+package server
 
 import (
 	"context"
@@ -9,35 +9,6 @@ import (
 	pb "github.com/mikudos/mikudos-message-pusher/proto/message-pusher"
 	"google.golang.org/grpc/metadata"
 )
-
-// Server implement Message-Pusher Server
-type Server struct {
-	streamID  int
-	Mode      string
-	Recv      chan *pb.Message
-	Returned  map[string]map[int64]chan *pb.Response
-	GroupRecv map[string]chan *pb.Message
-	EveryRecv map[int]chan *pb.Message
-	SaveMsg   chan *pb.Message
-}
-
-func (s *Server) pushToModeChannel(req *pb.Message) {
-	switch s.Mode {
-	case "every":
-		for _, Ch := range s.EveryRecv {
-			Ch <- req
-		}
-		break
-	case "group":
-		for _, Ch := range s.GroupRecv {
-			Ch <- req
-		}
-		break
-	case "unify":
-		s.Recv <- req
-		break
-	}
-}
 
 // PushToChannel push message to the message Gate
 func (s *Server) PushToChannel(ctx context.Context, req *pb.Message) (*pb.Response, error) {
