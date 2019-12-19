@@ -22,14 +22,14 @@ var (
 
 // Stored messages interface
 type Storage interface {
-	// GetPrivate get private msgs.
-	GetPrivate(key string, mid int64) ([]*pb.Message, error)
-	// SavePrivate Save single private msg.
-	SavePrivate(key string, msg json.RawMessage, mid int64, expire uint) error
-	// Save private msgs return failed keys.
-	SavePrivates(keys []string, msg json.RawMessage, mid int64, expire uint) ([]string, error)
-	// DelPrivate delete private msgs.
-	DelPrivate(key string) error
+	// GetChannel get channel msgs.
+	GetChannel(key string, mid int64) ([]*pb.Message, error)
+	// SaveChannel Save single channel msg.
+	SaveChannel(key string, msg json.RawMessage, mid int64, expire uint) error
+	// SaveChannels save channel msgs return failed keys.
+	SaveChannels(keys []string, msg json.RawMessage, mid int64, expire uint) ([]string, error)
+	// DelChannel delete channel msgs.
+	DelChannel(key string) error
 }
 
 // InitStorage init the storage type(mysql or redis).

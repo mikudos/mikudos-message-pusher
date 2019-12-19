@@ -28,8 +28,9 @@ func main() {
 		log.Fatalf("failed to listen: %v", err)
 	}
 
-	s := grpc.NewServer()                                                                                                                                                                                                                            //新建gRPC实例
-	pb.RegisterMessagePusherServer(s, &handler.Server{Mode: "group", Recv: make(chan *pb.Message), Returned: make(map[string]map[int64]chan *pb.Response), GroupRecv: make(map[string]chan *pb.Message), EveryRecv: make(map[int]chan *pb.Message)}) //在gRPC服务器注册服务实现
+	s := grpc.NewServer() //新建gRPC实例
+
+	pb.RegisterMessagePusherServer(s, &handler.Handler) //在gRPC服务器注册服务实现
 	log.Println(fmt.Sprintf("server start at port: %d", port))
 	if err := s.Serve(lis); err != nil { //Serve()阻塞等待
 		log.Fatalf("failed to serve: %v", err)

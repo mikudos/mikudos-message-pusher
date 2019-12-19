@@ -4,7 +4,6 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"io"
 	"log"
 
 	pb "github.com/mikudos/mikudos-message-pusher/proto/message-pusher"
@@ -13,12 +12,13 @@ import (
 
 // Server implement Message-Pusher Server
 type Server struct {
-	streamId  int
+	streamID  int
 	Mode      string
 	Recv      chan *pb.Message
 	Returned  map[string]map[int64]chan *pb.Response
 	GroupRecv map[string]chan *pb.Message
 	EveryRecv map[int]chan *pb.Message
+	SaveMsg   chan *pb.Message
 }
 
 func (s *Server) pushToModeChannel(req *pb.Message) {
@@ -69,26 +69,26 @@ func (s *Server) PushToChannelWithStatus(ctx context.Context, req *pb.Message) (
 // GateStream gate stream communication
 func (s *Server) GateStream(stream pb.MessagePusher_GateStreamServer) (err error) {
 	var (
-		GateId  int
-		GroupId string
+		GateID  int
+		GroupID string
 	)
 	if md, ok := metadata.FromIncomingContext(stream.Context()); ok {
 		if len(md["group"]) > 0 {
-			GroupId = md["group"][0]
+			GroupID = md["group"][0]
 		}
 	}
 	switch s.Mode {
 	case "every":
-		s.streamId += 1
-		GateId = s.streamId
-		s.EveryRecv[GateId] = make(chan *pb.Message)
+		s.streamID++
+		GateID = s.streamID
+		s.EveryRecv[GateID] = make(chan *pb.Message)
 		break
 	case "group":
-		if GroupId == "" {
+		if GroupID == "" {
 			err = errors.New("METADATA of group cannot be empty")
 			return err
 		}
-		s.GroupRecv[GroupId] = make(chan *pb.Message)
+		s.GroupRecv[GroupID] = make(chan *pb.Message)
 		break
 	}
 	go func() {
@@ -96,15 +96,15 @@ func (s *Server) GateStream(stream pb.MessagePusher_GateStreamServer) (err error
 		for {
 			select {
 			case <-stream.Context().Done():
-				delete(s.EveryRecv, GateId)
+				delete(s.EveryRecv, GateID)
 				return
 			case msg := <-s.Recv:
 				stream.Send(msg)
 				break
-			case msg := <-s.GroupRecv[GroupId]:
+			case msg := <-s.GroupRecv[GroupID]:
 				stream.Send(msg)
 				break
-			case msg := <-s.EveryRecv[GateId]:
+			case msg := <-s.EveryRecv[GateID]:
 				stream.Send(msg)
 				break
 			}
@@ -113,19 +113,17 @@ func (s *Server) GateStream(stream pb.MessagePusher_GateStreamServer) (err error
 
 	for {
 		resp, err := stream.Recv()
-		if err == io.EOF {
-			break
-		}
 		if err != nil {
 			break
 		}
 		channelID := resp.GetChannelId()
-		msgId := resp.GetMsgId()
+		msgID := resp.GetMsgId()
 		if !resp.GetReceived() { // message not received
-			// msg := resp.GetMsg()
+			msg := pb.Message{MsgId: msgID, ChannelId: channelID, Msg: resp.GetMsg()}
+			s.SaveMsg <- &msg
 		}
-		if s.Returned[channelID] != nil && s.Returned[channelID][msgId] != nil {
-			s.Returned[channelID][msgId] <- resp
+		if s.Returned[channelID] != nil && s.Returned[channelID][msgID] != nil {
+			s.Returned[channelID][msgID] <- resp
 		} else {
 			log.Printf("channelID: %v\n", channelID)
 		}

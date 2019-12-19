@@ -63,8 +63,8 @@ func NewMySQLStorage() *MySQLStorage {
 	return s
 }
 
-// SavePrivate implements the Storage SavePrivate method.
-func (s *MySQLStorage) SavePrivate(key string, msg json.RawMessage, mid int64, expire uint) error {
+// SaveChannel implements the Storage SaveChannel method.
+func (s *MySQLStorage) SaveChannel(key string, msg json.RawMessage, mid int64, expire uint) error {
 	db := s.getConn(key)
 	if db == nil {
 		return ErrNoMySQLConn
@@ -78,14 +78,14 @@ func (s *MySQLStorage) SavePrivate(key string, msg json.RawMessage, mid int64, e
 	return nil
 }
 
-// SavePrivates implements the Storage SavePrivates method.
-func (s *MySQLStorage) SavePrivates(keys []string, msg json.RawMessage, mid int64, expire uint) ([]string, error) {
+// SaveChannels implements the Storage SaveChannels method.
+func (s *MySQLStorage) SaveChannels(keys []string, msg json.RawMessage, mid int64, expire uint) ([]string, error) {
 	// TODO
 	return nil, nil
 }
 
-// GetPrivate implements the Storage GetPrivate method.
-func (s *MySQLStorage) GetPrivate(key string, mid int64) ([]*pb.Message, error) {
+// GetChannel implements the Storage GetChannel method.
+func (s *MySQLStorage) GetChannel(key string, mid int64) ([]*pb.Message, error) {
 	db := s.getConn(key)
 	if db == nil {
 		return nil, ErrNoMySQLConn
@@ -114,8 +114,8 @@ func (s *MySQLStorage) GetPrivate(key string, mid int64) ([]*pb.Message, error) 
 	return msgs, nil
 }
 
-// DelPrivate implements the Storage DelPrivate method.
-func (s *MySQLStorage) DelPrivate(key string) error {
+// DelChannel implements the Storage DelChannel method.
+func (s *MySQLStorage) DelChannel(key string) error {
 	db := s.getConn(key)
 	if db == nil {
 		return ErrNoMySQLConn

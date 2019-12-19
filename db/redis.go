@@ -20,25 +20,26 @@ var (
 	redisProtocolSpliter = "@"
 )
 
-// RedisMessage struct encoding the composite info.
+// RedisPrivateMessage RedisMessage struct encoding the composite info.
 type RedisPrivateMessage struct {
 	Msg    json.RawMessage `json:"msg"`    // message content
 	Expire int64           `json:"expire"` // expire second
 }
 
-// Struct for delele message
+// RedisDelMessage Struct for delele message
 type RedisDelMessage struct {
 	Key  string
 	MIds []int64
 }
 
+// RedisStorage RedisStorage
 type RedisStorage struct {
 	pool  map[string]*redis.Pool
 	ring  *ketama.HashRing
 	delCH chan *RedisDelMessage
 }
 
-// NewRedis initialize the redis pool and consistency hash ring.
+// NewRedisStorage NewRedis initialize the redis pool and consistency hash ring.
 func NewRedisStorage() *RedisStorage {
 	redisPool := map[string]*redis.Pool{}
 	ring := ketama.NewRing(ketamaBase)
@@ -100,8 +101,8 @@ func NewRedisStorage() *RedisStorage {
 	return s
 }
 
-// SavePrivate implements the Storage SavePrivate method.
-func (s *RedisStorage) SavePrivate(key string, msg json.RawMessage, mid int64, expire uint) error {
+// SaveChannel implements the Storage SaveChannel method.
+func (s *RedisStorage) SaveChannel(key string, msg json.RawMessage, mid int64, expire uint) error {
 	rm := &RedisPrivateMessage{Msg: msg, Expire: int64(expire) + time.Now().Unix()}
 	m, err := json.Marshal(rm)
 	if err != nil {
@@ -136,8 +137,8 @@ func (s *RedisStorage) SavePrivate(key string, msg json.RawMessage, mid int64, e
 	return nil
 }
 
-// SavePrivates implements the Storage SavePrivates method.
-func (s *RedisStorage) SavePrivates(keys []string, msg json.RawMessage, mid int64, expire uint) (fkeys []string, err error) {
+// SaveChannels implements the Storage SaveChannels method.
+func (s *RedisStorage) SaveChannels(keys []string, msg json.RawMessage, mid int64, expire uint) (fkeys []string, err error) {
 	// split as node
 	nodes := map[string][]string{}
 	fkeysMap := make(map[string]bool, len(keys))
@@ -212,8 +213,8 @@ func (s *RedisStorage) SavePrivates(keys []string, msg json.RawMessage, mid int6
 	return
 }
 
-// GetPrivate implements the Storage GetPrivate method.
-func (s *RedisStorage) GetPrivate(key string, mid int64) ([]*pb.Message, error) {
+// GetChannel implements the Storage GetChannel method.
+func (s *RedisStorage) GetChannel(key string, mid int64) ([]*pb.Message, error) {
 	conn := s.getConn(key)
 	if conn == nil {
 		return nil, RedisNoConnErr
@@ -261,8 +262,8 @@ func (s *RedisStorage) GetPrivate(key string, mid int64) ([]*pb.Message, error) 
 	return msgs, nil
 }
 
-// DelPrivate implements the Storage DelPrivate method.
-func (s *RedisStorage) DelPrivate(key string) error {
+// DelChannel implements the Storage DelChannel method.
+func (s *RedisStorage) DelChannel(key string) error {
 	conn := s.getConn(key)
 	if conn == nil {
 		return RedisNoConnErr
