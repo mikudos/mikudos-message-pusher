@@ -4,6 +4,8 @@ import (
 	"flag"
 	"runtime"
 	"time"
+
+	"github.com/mikudos/mikudos-message-pusher/config"
 )
 
 var (
@@ -66,6 +68,20 @@ func InitConfig() error {
 		ZookeeperAddr:    []string{"localhost:2181"},
 		ZookeeperTimeout: 30 * time.Second,
 		ZookeeperPath:    "/gopush-cluster-message",
+	}
+	// redis section
+	redisAddrsSec := config.RuntimeViper.Get("redisSource").(map[string]interface{})
+	if redisAddrsSec != nil {
+		for k, v := range redisAddrsSec {
+			Conf.RedisSource[k] = v.(string)
+		}
+	}
+	// mysql section
+	dbSource := config.RuntimeViper.Get("mySQLSource").(map[string]interface{})
+	if dbSource != nil {
+		for k, v := range dbSource {
+			Conf.MySQLSource[k] = v.(string)
+		}
 	}
 	return nil
 }

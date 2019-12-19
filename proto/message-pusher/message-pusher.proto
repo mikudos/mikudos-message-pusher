@@ -3,8 +3,8 @@ package message_pusher;
 
 service Message_pusher {
   rpc GetConfig(ConfigRequest) returns (ConfigResponse) {}
-  rpc PushToChannel(Message) returns (Response) {}
-  rpc PushToChannelWithStatus(Message) returns (Response) {}
+  rpc PushToChannel(PushMessage) returns (Response) {}
+  rpc PushToChannelWithStatus(PushMessage) returns (Response) {}
   rpc GateStream(stream Response) returns (stream Message) {
   } // Gate communicate
 }
@@ -13,12 +13,19 @@ message ConfigRequest { repeated string Keys = 1; }
 
 message ConfigResponse {}
 
-message Message {
-  int64 id = 1;
+message PushMessage {
   bytes msg = 2;
   string channelId = 3;
   int64 msgId = 4;
   int32 expire = 5;
+}
+
+message Message {
+  bytes msg = 2;
+  string channelId = 3;
+  int64 msgId = 4;
+  int32 expire = 5;
+  bool requested = 6;
 }
 
 message Request { string name = 1; }
@@ -29,7 +36,7 @@ message Response {
   bytes msg = 3;
   int32 expire = 4;
   bool received = 5;
-  bool request = 6;
+  bool requested = 6;
 }
 
 message StreamingRequest { int64 count = 1; }

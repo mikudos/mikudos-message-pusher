@@ -1,6 +1,8 @@
 package server
 
 import (
+	"fmt"
+
 	"github.com/mikudos/mikudos-message-pusher/db"
 	pb "github.com/mikudos/mikudos-message-pusher/proto/message-pusher"
 )
@@ -18,6 +20,7 @@ type Server struct {
 }
 
 func (s *Server) pushToModeChannel(req *pb.Message) {
+	fmt.Printf("push msg: %v\n", req)
 	switch s.Mode {
 	case "every":
 		for _, Ch := range s.EveryRecv {

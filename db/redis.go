@@ -250,7 +250,7 @@ func (s *RedisStorage) GetChannel(key string, mid int64) ([]*pb.Message, error) 
 			delMsgs = append(delMsgs, cmid)
 			continue
 		}
-		m := &pb.Message{MsgId: cmid, Msg: rm.Msg, ChannelId: ""}
+		m := &pb.Message{MsgId: cmid, Msg: rm.Msg, ChannelId: key, Requested: true}
 		msgs = append(msgs, m)
 	}
 	// delete unmarshal failed and expired message
@@ -262,6 +262,12 @@ func (s *RedisStorage) GetChannel(key string, mid int64) ([]*pb.Message, error) 
 		}
 	}
 	return msgs, nil
+}
+
+// PushDel PushDel
+func (s *RedisStorage) PushDel(key string, mid int64) error {
+	s.delCH <- &RedisDelMessage{Key: key, MIds: []int64{mid}}
+	return nil
 }
 
 // DelChannel implements the Storage DelChannel method.

@@ -114,6 +114,11 @@ func (s *MySQLStorage) GetChannel(key string, mid int64) ([]*pb.Message, error) 
 	return msgs, nil
 }
 
+// PushDel PushDel
+func (s *MySQLStorage) PushDel(key string, mid int64) error {
+	return nil
+}
+
 // DelChannel implements the Storage DelChannel method.
 func (s *MySQLStorage) DelChannel(key string) error {
 	db := s.getConn(key)

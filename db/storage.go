@@ -29,6 +29,8 @@ type Storage interface {
 	SaveChannel(key string, msg json.RawMessage, mid int64, expire uint) error
 	// SaveChannels save channel msgs return failed keys.
 	SaveChannels(keys []string, msg json.RawMessage, mid int64, expire uint) ([]string, error)
+	//
+	PushDel(key string, mid int64) error
 	// DelChannel delete channel msgs.
 	DelChannel(key string) error
 }

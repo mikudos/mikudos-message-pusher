@@ -25,7 +25,7 @@ func init() {
 }
 
 func initReadRoutine() {
-	for index := 0; index < 3; index++ {
+	for index := 0; index < 1; index++ {
 		go ReadSaveMsg(&Handler)
 	}
 }

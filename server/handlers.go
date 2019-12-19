@@ -5,21 +5,22 @@ import (
 	"errors"
 	"fmt"
 	"log"
+	"time"
 
 	pb "github.com/mikudos/mikudos-message-pusher/proto/message-pusher"
 	"google.golang.org/grpc/metadata"
 )
 
 // PushToChannel push message to the message Gate
-func (s *Server) PushToChannel(ctx context.Context, req *pb.Message) (*pb.Response, error) {
-	s.pushToModeChannel(req)
+func (s *Server) PushToChannel(ctx context.Context, req *pb.PushMessage) (*pb.Response, error) {
+	s.pushToModeChannel(&pb.Message{Msg: req.GetMsg(), ChannelId: req.GetChannelId(), MsgId: req.GetMsgId(), Expire: req.GetExpire()})
 	res := &pb.Response{MsgId: req.MsgId, ChannelId: req.ChannelId}
 	return res, nil
 }
 
 // PushToChannelWithStatus push message to the message Gate and wait for result
-func (s *Server) PushToChannelWithStatus(ctx context.Context, req *pb.Message) (*pb.Response, error) {
-	s.pushToModeChannel(req)
+func (s *Server) PushToChannelWithStatus(ctx context.Context, req *pb.PushMessage) (*pb.Response, error) {
+	s.pushToModeChannel(&pb.Message{Msg: req.GetMsg(), ChannelId: req.GetChannelId(), MsgId: req.GetMsgId(), Expire: req.GetExpire()})
 	mid := req.GetMsgId()
 	channelID := req.GetChannelId()
 	if s.Returned[channelID] == nil {
@@ -27,13 +28,23 @@ func (s *Server) PushToChannelWithStatus(ctx context.Context, req *pb.Message) (
 	} else if s.Returned[channelID][mid] == nil {
 		s.Returned[channelID][mid] = make(chan *pb.Response, 1)
 	}
-	for {
-		ret := <-s.Returned[channelID][mid]
+	timeOut := make(chan bool, 1)
+	go func() {
+		time.Sleep(5 * time.Second)
+		if timeOut != nil {
+			timeOut <- true
+		}
+	}()
+	select {
+	case ret := <-s.Returned[channelID][mid]:
+		timeOut = nil
 		delete(s.Returned[channelID], mid)
 		if len(s.Returned[channelID]) == 0 {
 			delete(s.Returned, channelID)
 		}
 		return ret, nil
+	case <-timeOut:
+		return nil, errors.New("time out")
 	}
 }
 
@@ -89,14 +100,19 @@ func (s *Server) GateStream(stream pb.MessagePusher_GateStreamServer) (err error
 		}
 		channelID := resp.GetChannelId()
 		msgID := resp.GetMsgId()
-		if resp.GetRequest() { // request channel message
+		if resp.GetRequested() { // request channel message
 			msgs, err := s.Storage.GetChannel(channelID, msgID)
 			if err != nil {
 			}
+			for _, m := range msgs {
+				stream.Send(m)
+			}
 			fmt.Printf("msgs: %v\n", msgs)
-		} else if !resp.GetReceived() { // message not received
+		} else if !resp.GetReceived() && !resp.GetRequested() { // message not received
 			msg := pb.Message{MsgId: msgID, ChannelId: channelID, Msg: resp.GetMsg(), Expire: resp.GetExpire()}
 			s.SaveMsg <- &msg
+		} else if resp.GetReceived() { // message received
+			s.Storage.PushDel(channelID, msgID)
 		}
 		if s.Returned[channelID] != nil && s.Returned[channelID][msgID] != nil {
 			s.Returned[channelID][msgID] <- resp
@@ -106,4 +122,9 @@ func (s *Server) GateStream(stream pb.MessagePusher_GateStreamServer) (err error
 	}
 	fmt.Printf("GateStream break\n")
 	return err
+}
+
+// GetConfig GetConfig
+func (s *Server) GetConfig(ctx context.Context, req *pb.ConfigRequest) (*pb.ConfigResponse, error) {
+	return &pb.ConfigResponse{}, nil
 }
