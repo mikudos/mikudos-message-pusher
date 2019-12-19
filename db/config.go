@@ -2,11 +2,8 @@ package db
 
 import (
 	"flag"
-	"fmt"
 	"runtime"
 	"time"
-
-	"github.com/Terry-Mao/goconf"
 )
 
 var (
@@ -44,20 +41,16 @@ type Config struct {
 
 // NewConfig parse config file into Config.
 func InitConfig() error {
-	gconf := goconf.New()
-	if err := gconf.Parse(confFile); err != nil {
-		return err
-	}
 	Conf = &Config{
 		// base
-		RPCBind:    []string{"localhost:8070"},
+		RPCBind:    []string{"localhost:6379"},
 		NodeWeight: 1,
 		User:       "nobody nobody",
 		PidFile:    "/tmp/gopush-cluster-message.pid",
 		Dir:        "./",
 		Log:        "./log/xml",
 		MaxProc:    runtime.NumCPU(),
-		PprofBind:  []string{"localhost:8170"},
+		PprofBind:  []string{"localhost:6379"},
 		// storage
 		StorageType: "redis",
 		// redis
@@ -73,31 +66,6 @@ func InitConfig() error {
 		ZookeeperAddr:    []string{"localhost:2181"},
 		ZookeeperTimeout: 30 * time.Second,
 		ZookeeperPath:    "/gopush-cluster-message",
-	}
-	if err := gconf.Unmarshal(Conf); err != nil {
-		return err
-	}
-	// redis section
-	redisAddrsSec := gconf.Get("redis.source")
-	if redisAddrsSec != nil {
-		for _, key := range redisAddrsSec.Keys() {
-			addr, err := redisAddrsSec.String(key)
-			if err != nil {
-				return fmt.Errorf("config section: \"redis.addrs\" key: \"%s\" error(%v)", key, err)
-			}
-			Conf.RedisSource[key] = addr
-		}
-	}
-	// mysql section
-	dbSource := gconf.Get("mysql.source")
-	if dbSource != nil {
-		for _, key := range dbSource.Keys() {
-			source, err := dbSource.String(key)
-			if err != nil {
-				return fmt.Errorf("config section: \"mysql.source\" key: \"%s\" error(%v)", key, err)
-			}
-			Conf.MySQLSource[key] = source
-		}
 	}
 	return nil
 }

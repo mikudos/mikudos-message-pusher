@@ -2,6 +2,7 @@ package server
 
 import (
 	"encoding/json"
+	"log"
 
 	"github.com/mikudos/mikudos-message-pusher/db"
 	pb "github.com/mikudos/mikudos-message-pusher/proto/message-pusher"
@@ -13,7 +14,12 @@ var Handler Server
 func init() {
 	Handler = Server{Mode: "group", Recv: make(chan *pb.Message), Returned: make(map[string]map[int64]chan *pb.Response), GroupRecv: make(map[string]chan *pb.Message), EveryRecv: make(map[int]chan *pb.Message), SaveMsg: make(chan *pb.Message)}
 
-	db.InitStorage()
+	db.InitConfig()
+	storage, err := db.InitStorage()
+	if err != nil {
+		log.Fatalf("InitStorage err: %v\n", err)
+	}
+	Handler.Storage = *storage
 
 	initReadRoutine()
 }
@@ -28,6 +34,6 @@ func initReadRoutine() {
 func ReadSaveMsg(h *Server) {
 	for {
 		msg := <-h.SaveMsg
-		db.UseStorage.SaveChannel("", json.RawMessage(msg.GetMsg()), msg.GetMsgId(), 1)
+		Handler.Storage.SaveChannel(msg.GetChannelId(), json.RawMessage(msg.GetMsg()), msg.GetMsgId(), uint(msg.GetExpire()))
 	}
 }
