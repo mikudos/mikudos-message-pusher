@@ -107,8 +107,7 @@ func (s *Server) GateStream(stream pb.MessagePusher_GateStreamServer) (err error
 			for _, m := range msgs {
 				stream.Send(m)
 			}
-			fmt.Printf("msgs: %v\n", msgs)
-		} else if !resp.GetReceived() && !resp.GetRequested() { // message not received
+		} else if !resp.GetReceived() { // message not received
 			msg := pb.Message{MsgId: msgID, ChannelId: channelID, Msg: resp.GetMsg(), Expire: resp.GetExpire()}
 			s.SaveMsg <- &msg
 		} else if resp.GetReceived() { // message received
