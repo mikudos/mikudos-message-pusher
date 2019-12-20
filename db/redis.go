@@ -20,8 +20,8 @@ var (
 	redisProtocolSpliter = "@"
 )
 
-// RedisPrivateMessage RedisMessage struct encoding the composite info.
-type RedisPrivateMessage struct {
+// RedisChannelMessage RedisMessage struct encoding the composite info.
+type RedisChannelMessage struct {
 	Msg    json.RawMessage `json:"msg"`    // message content
 	Expire int64           `json:"expire"` // expire second
 }
@@ -103,7 +103,7 @@ func NewRedisStorage() *RedisStorage {
 
 // SaveChannel implements the Storage SaveChannel method.
 func (s *RedisStorage) SaveChannel(key string, msg json.RawMessage, mid int64, expire uint) error {
-	rm := &RedisPrivateMessage{Msg: msg, Expire: int64(expire) + time.Now().Unix()}
+	rm := &RedisChannelMessage{Msg: msg, Expire: int64(expire) + time.Now().Unix()}
 	m, err := json.Marshal(rm)
 	if err != nil {
 		log.Error("json.Marshal() key:\"%s\" error(%v)", key, err)
@@ -162,7 +162,7 @@ func (s *RedisStorage) SaveChannels(keys []string, msg json.RawMessage, mid int6
 		}
 	}()
 	// raw msg
-	rm := &RedisPrivateMessage{Msg: msg, Expire: int64(expire) + time.Now().Unix()}
+	rm := &RedisChannelMessage{Msg: msg, Expire: int64(expire) + time.Now().Unix()}
 	m, err := json.Marshal(rm)
 	if err != nil {
 		log.Error("json.Marshal() key:\"%s\" error(%v)", keys, err)
@@ -238,7 +238,7 @@ func (s *RedisStorage) GetChannel(key string, mid int64) ([]*pb.Message, error) 
 			log.Error("redis.Scan() error(%v)", err)
 			return nil, err
 		}
-		rm := &RedisPrivateMessage{}
+		rm := &RedisChannelMessage{}
 		if err = json.Unmarshal(b, rm); err != nil {
 			log.Error("json.Unmarshal(\"%s\", rm) error(%v)", string(b), err)
 			delMsgs = append(delMsgs, cmid)
@@ -250,7 +250,7 @@ func (s *RedisStorage) GetChannel(key string, mid int64) ([]*pb.Message, error) 
 			delMsgs = append(delMsgs, cmid)
 			continue
 		}
-		m := &pb.Message{MsgId: cmid, Msg: rm.Msg, ChannelId: key, Requested: true}
+		m := &pb.Message{MsgId: cmid, Msg: rm.Msg, ChannelId: ""}
 		msgs = append(msgs, m)
 	}
 	// delete unmarshal failed and expired message

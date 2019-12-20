@@ -1,7 +1,6 @@
 package db
 
 import (
-	"flag"
 	"runtime"
 	"time"
 
@@ -9,13 +8,8 @@ import (
 )
 
 var (
-	Conf     *Config
-	confFile string
+	Conf *Config
 )
-
-func init() {
-	flag.StringVar(&confFile, "c", "./message.conf", " set message config file path")
-}
 
 // Config struct
 type Config struct {
@@ -54,7 +48,7 @@ func InitConfig() error {
 		MaxProc:    runtime.NumCPU(),
 		PprofBind:  []string{"localhost:6379"},
 		// storage
-		StorageType: "redis",
+		StorageType: config.RuntimeViper.Get("StorageType").(string),
 		// redis
 		RedisIdleTimeout: 28800 * time.Second,
 		RedisMaxIdle:     50,
@@ -64,10 +58,6 @@ func InitConfig() error {
 		// mysql
 		MySQLSource: make(map[string]string),
 		MySQLClean:  1 * time.Hour,
-		// zookeeper
-		ZookeeperAddr:    []string{"localhost:2181"},
-		ZookeeperTimeout: 30 * time.Second,
-		ZookeeperPath:    "/gopush-cluster-message",
 	}
 	// redis section
 	redisAddrsSec := config.RuntimeViper.Get("redisSource").(map[string]interface{})

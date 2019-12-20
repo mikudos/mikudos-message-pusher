@@ -15,11 +15,11 @@ import (
 )
 
 const (
-	savePrivateMsgSQL = "INSERT INTO private_msg(skey,mid,ttl,msg,ctime,mtime) VALUES(?,?,?,?,?,?)"
-	// TODO limit
-	getPrivateMsgSQL        = "SELECT mid, ttl, msg FROM private_msg WHERE skey=? AND mid>? ORDER BY mid"
-	delExpiredPrivateMsgSQL = "DELETE FROM private_msg WHERE ttl<=?"
-	delPrivateMsgSQL        = "DELETE FROM private_msg WHERE skey=?"
+	saveChannelMsgSQL       = "INSERT INTO channel_msg(skey,mid,ttl,msg,ctime,mtime) VALUES(?,?,?,?,?,?)"
+	getChannelMsgSQL        = "SELECT mid, ttl, msg FROM channel_msg WHERE skey=? AND mid>? ORDER BY mid"
+	delResavedChannelMsgSQL = "DELETE FROM channel_msg WHERE skey=? AND mid=?"
+	delExpiredChannelMsgSQL = "DELETE FROM channel_msg WHERE ttl<=?"
+	delChannelMsgSQL        = "DELETE FROM channel_msg WHERE skey=?"
 )
 
 var (
@@ -27,10 +27,17 @@ var (
 	mysqlSourceSpliter = ":"
 )
 
-// MySQL Storage struct
+// MysqlDelMessage Struct for delele message
+type MysqlDelMessage struct {
+	Key  string
+	MIds []int64
+}
+
+// MySQLStorage MySQL Storage struct
 type MySQLStorage struct {
-	pool map[string]*sql.DB
-	ring *ketama.HashRing
+	pool  map[string]*sql.DB
+	ring  *ketama.HashRing
+	delCH chan *MysqlDelMessage
 }
 
 // NewMySQLStorage initialize mysql pool and consistency hash ring.
@@ -58,7 +65,7 @@ func NewMySQLStorage() *MySQLStorage {
 		ring.AddNode(nw[0], w)
 	}
 	ring.Bake()
-	s := &MySQLStorage{pool: dbPool, ring: ring}
+	s := &MySQLStorage{pool: dbPool, ring: ring, delCH: make(chan *MysqlDelMessage, 10240)}
 	go s.clean()
 	return s
 }
@@ -70,9 +77,9 @@ func (s *MySQLStorage) SaveChannel(key string, msg json.RawMessage, mid int64, e
 		return ErrNoMySQLConn
 	}
 	now := time.Now()
-	_, err := db.Exec(savePrivateMsgSQL, key, mid, now.Unix()+int64(expire), []byte(msg), now, now)
+	_, err := db.Exec(saveChannelMsgSQL, key, mid, now.Unix()+int64(expire), string(msg), now, now)
 	if err != nil {
-		log.Error("db.Exec(\"%s\",\"%s\",%d,%d,%d,\"%s\",now,now) failed (%v)", savePrivateMsgSQL, key, mid, expire, string(msg), err)
+		log.Error("db.Exec(\"%s\",\"%s\",%d,%d,%d,\"%s\",now,now) failed (%v)", saveChannelMsgSQL, key, mid, expire, string(msg), err)
 		return err
 	}
 	return nil
@@ -91,9 +98,9 @@ func (s *MySQLStorage) GetChannel(key string, mid int64) ([]*pb.Message, error) 
 		return nil, ErrNoMySQLConn
 	}
 	now := time.Now().Unix()
-	rows, err := db.Query(getPrivateMsgSQL, key, mid)
+	rows, err := db.Query(getChannelMsgSQL, key, mid)
 	if err != nil {
-		log.Error("db.Query(\"%s\",\"%s\",%d,now) failed (%v)", getPrivateMsgSQL, key, mid, err)
+		log.Error("db.Query(\"%s\",\"%s\",%d,now) failed (%v)", getChannelMsgSQL, key, mid, err)
 		return nil, err
 	}
 	msgs := []*pb.Message{}
@@ -109,13 +116,14 @@ func (s *MySQLStorage) GetChannel(key string, mid int64) ([]*pb.Message, error) 
 			log.Warn("user_key: \"%s\" mid: %d expired", key, cmid)
 			continue
 		}
-		msgs = append(msgs, &pb.Message{MsgId: cmid, ChannelId: "", Msg: json.RawMessage(msg)})
+		msgs = append(msgs, &pb.Message{MsgId: cmid, ChannelId: key, Msg: json.RawMessage(msg), Expire: int32(expire), Requested: true})
 	}
 	return msgs, nil
 }
 
 // PushDel PushDel
 func (s *MySQLStorage) PushDel(key string, mid int64) error {
+	s.delCH <- &MysqlDelMessage{Key: key, MIds: []int64{mid}}
 	return nil
 }
 
@@ -125,9 +133,9 @@ func (s *MySQLStorage) DelChannel(key string) error {
 	if db == nil {
 		return ErrNoMySQLConn
 	}
-	res, err := db.Exec(delPrivateMsgSQL, key)
+	res, err := db.Exec(delChannelMsgSQL, key)
 	if err != nil {
-		log.Error("db.Exec(\"%s\", \"%s\") error(%v)", delPrivateMsgSQL, key, err)
+		log.Error("db.Exec(\"%s\", \"%s\") error(%v)", delChannelMsgSQL, key, err)
 		return err
 	}
 	rows, err := res.RowsAffected()
@@ -141,26 +149,44 @@ func (s *MySQLStorage) DelChannel(key string) error {
 
 // clean delete expired messages peroridly.
 func (s *MySQLStorage) clean() {
-	for {
-		log.Info("clean mysql expired message start")
-		now := time.Now().Unix()
-		affect := int64(0)
-		for _, db := range s.pool {
-			res, err := db.Exec(delExpiredPrivateMsgSQL, now)
-			if err != nil {
-				log.Error("db.Exec(\"%s\", %d) failed (%v)", delExpiredPrivateMsgSQL, now, err)
+	go func() {
+		for {
+			info := <-s.delCH
+			conn := s.getConn(info.Key)
+			if conn == nil {
+				log.Warn("get mysql connection nil")
 				continue
 			}
-			aff, err := res.RowsAffected()
-			if err != nil {
-				log.Error("res.RowsAffected() error(%v)", err)
-				continue
+			for _, mid := range info.MIds {
+				if _, err := conn.Exec(delResavedChannelMsgSQL, info.Key, mid); err != nil {
+					conn.Close()
+					continue
+				}
 			}
-			affect += aff
 		}
-		log.Info("clean mysql expired message finish, num: %d", affect)
-		time.Sleep(Conf.MySQLClean)
-	}
+	}()
+	go func() {
+		for {
+			log.Info("clean mysql expired message start")
+			now := time.Now().Unix()
+			affect := int64(0)
+			for _, db := range s.pool {
+				res, err := db.Exec(delExpiredChannelMsgSQL, now)
+				if err != nil {
+					log.Error("db.Exec(\"%s\", %d) failed (%v)", delExpiredChannelMsgSQL, now, err)
+					continue
+				}
+				aff, err := res.RowsAffected()
+				if err != nil {
+					log.Error("res.RowsAffected() error(%v)", err)
+					continue
+				}
+				affect += aff
+			}
+			log.Info("clean mysql expired message finish, num: %d", affect)
+			time.Sleep(Conf.MySQLClean)
+		}
+	}()
 }
 
 // getConn get the connection of matching with key using ketama hash
