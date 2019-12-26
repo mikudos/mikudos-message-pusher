@@ -25,6 +25,7 @@ message Message {
   int64 msgId = 4;
   int32 expire = 5;
   bool requested = 6;
+  MessageType messageType = 7;
 }
 
 message Request { string name = 1; }
@@ -36,6 +37,13 @@ message Response {
   int32 expire = 4;
   bool received = 5;
   bool requested = 6;
+  MessageType messageType = 7;
+}
+
+enum MessageType { // message type
+  REQUEST = 0;
+  RESPONSE = 1;
+  RECEIVED = 2;
 }
 
 message StreamingRequest { int64 count = 1; }
