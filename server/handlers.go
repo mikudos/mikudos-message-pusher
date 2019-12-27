@@ -100,18 +100,25 @@ func (s *Server) GateStream(stream pb.MessagePusher_GateStreamServer) (err error
 		}
 		channelID := resp.GetChannelId()
 		msgID := resp.GetMsgId()
-		if resp.GetRequested() { // request channel message
+		name, _ := resp.GetMessageType().EnumDescriptor()
+		switch string(name) {
+		case "REQUEST":
 			msgs, err := s.Storage.GetChannel(channelID, msgID)
 			if err != nil {
 			}
 			for _, m := range msgs {
 				stream.Send(m)
 			}
-		} else if !resp.GetReceived() { // message not received
+			break
+		case "RESPONSE":
+			break
+		case "RECEIVED":
+			s.Storage.PushDel(channelID, msgID)
+			break
+		case "UNRECEIVED":
 			msg := pb.Message{MsgId: msgID, ChannelId: channelID, Msg: resp.GetMsg(), Expire: resp.GetExpire()}
 			s.SaveMsg <- &msg
-		} else if resp.GetReceived() { // message received
-			s.Storage.PushDel(channelID, msgID)
+			break
 		}
 		if s.Returned[channelID] != nil && s.Returned[channelID][msgID] != nil {
 			s.Returned[channelID][msgID] <- resp

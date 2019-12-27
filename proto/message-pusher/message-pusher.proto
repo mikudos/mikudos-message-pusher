@@ -24,7 +24,6 @@ message Message {
   string channelId = 3;
   int64 msgId = 4;
   int32 expire = 5;
-  bool requested = 6;
   MessageType messageType = 7;
 }
 
@@ -35,8 +34,6 @@ message Response {
   string channelId = 2;
   bytes msg = 3;
   int32 expire = 4;
-  bool received = 5;
-  bool requested = 6;
   MessageType messageType = 7;
 }
 
@@ -44,6 +41,7 @@ enum MessageType { // message type
   REQUEST = 0;
   RESPONSE = 1;
   RECEIVED = 2;
+  UNRECEIVED = 3;
 }
 
 message StreamingRequest { int64 count = 1; }
