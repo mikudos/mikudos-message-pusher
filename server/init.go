@@ -12,7 +12,7 @@ import (
 var Handler Server
 
 func init() {
-	Handler = Server{Mode: "group", Recv: make(chan *pb.Message), Returned: make(map[string]map[int64]chan *pb.Response), GroupRecv: make(map[string]chan *pb.Message), EveryRecv: make(map[int]chan *pb.Message), SaveMsg: make(chan *pb.Message)}
+	Handler = Server{Mode: "group", Recv: make(chan *pb.Message), Returned: make(map[string]map[uint32]chan *pb.Response), GroupRecv: make(map[string]chan *pb.Message), EveryRecv: make(map[uint32]chan *pb.Message), SaveMsg: make(chan *pb.Message)}
 
 	db.InitConfig()
 	storage, err := db.InitStorage()

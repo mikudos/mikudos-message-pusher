@@ -7,21 +7,18 @@ import (
 
 // Server implement Message-Pusher Server
 type Server struct {
-	AID       int64
-	streamID  int
+	AID       uint32
+	streamID  uint32
 	Mode      string
 	Recv      chan *pb.Message
-	Returned  map[string]map[int64]chan *pb.Response
+	Returned  map[string]map[uint32]chan *pb.Response
 	GroupRecv map[string]chan *pb.Message
-	EveryRecv map[int]chan *pb.Message
+	EveryRecv map[uint32]chan *pb.Message
 	SaveMsg   chan *pb.Message
 	Storage   db.Storage
 }
 
 func (s *Server) increment() {
-	if s.AID > 9999999999999 {
-		s.AID = 0
-	}
 	s.AID++
 }
 

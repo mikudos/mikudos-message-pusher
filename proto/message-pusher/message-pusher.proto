@@ -30,7 +30,7 @@ message Message {
 message Request { string name = 1; }
 
 message Response {
-  int64 msgId = 1;
+  uint32 msgId = 1;
   string channelId = 2;
   bytes msg = 3;
   int32 expire = 4;

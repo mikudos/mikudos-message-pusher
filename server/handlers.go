@@ -13,18 +13,18 @@ import (
 
 // PushToChannel push message to the message Gate
 func (s *Server) PushToChannel(ctx context.Context, req *pb.PushMessage) (*pb.Response, error) {
-	s.pushToModeChannel(&pb.Message{Msg: req.GetMsg(), ChannelId: req.GetChannelId(), MsgId: s.AID, Expire: req.GetExpire()})
+	s.pushToModeChannel(&pb.Message{Msg: req.GetMsg(), ChannelId: req.GetChannelId(), MsgId: int64(s.AID), Expire: req.GetExpire()})
 	res := &pb.Response{MsgId: s.AID, ChannelId: req.ChannelId}
 	return res, nil
 }
 
 // PushToChannelWithStatus push message to the message Gate and wait for result
 func (s *Server) PushToChannelWithStatus(ctx context.Context, req *pb.PushMessage) (*pb.Response, error) {
-	s.pushToModeChannel(&pb.Message{Msg: req.GetMsg(), ChannelId: req.GetChannelId(), MsgId: s.AID, Expire: req.GetExpire()})
+	s.pushToModeChannel(&pb.Message{Msg: req.GetMsg(), ChannelId: req.GetChannelId(), MsgId: int64(s.AID), Expire: req.GetExpire()})
 	mid := s.AID
 	channelID := req.GetChannelId()
 	if s.Returned[channelID] == nil {
-		s.Returned[channelID] = map[int64]chan *pb.Response{mid: make(chan *pb.Response, 1)}
+		s.Returned[channelID] = map[uint32]chan *pb.Response{mid: make(chan *pb.Response, 1)}
 	} else if s.Returned[channelID][mid] == nil {
 		s.Returned[channelID][mid] = make(chan *pb.Response, 1)
 	}
@@ -51,7 +51,7 @@ func (s *Server) PushToChannelWithStatus(ctx context.Context, req *pb.PushMessag
 // GateStream gate stream communication
 func (s *Server) GateStream(stream pb.MessagePusher_GateStreamServer) (err error) {
 	var (
-		GateID  int
+		GateID  uint32
 		GroupID string
 	)
 	if md, ok := metadata.FromIncomingContext(stream.Context()); ok {
@@ -103,7 +103,7 @@ func (s *Server) GateStream(stream pb.MessagePusher_GateStreamServer) (err error
 		name := resp.GetMessageType()
 		switch name {
 		case pb.MessageType_REQUEST:
-			msgs, err := s.Storage.GetChannel(channelID, msgID)
+			msgs, err := s.Storage.GetChannel(channelID, int64(msgID))
 			if err != nil {
 			}
 			for _, m := range msgs {
@@ -113,10 +113,10 @@ func (s *Server) GateStream(stream pb.MessagePusher_GateStreamServer) (err error
 		case pb.MessageType_RESPONSE:
 			break
 		case pb.MessageType_RECEIVED:
-			s.Storage.PushDel(channelID, msgID)
+			s.Storage.PushDel(channelID, int64(msgID))
 			break
 		case pb.MessageType_UNRECEIVED:
-			msg := pb.Message{MsgId: msgID, ChannelId: channelID, Msg: resp.GetMsg(), Expire: resp.GetExpire()}
+			msg := pb.Message{MsgId: int64(msgID), ChannelId: channelID, Msg: resp.GetMsg(), Expire: resp.GetExpire()}
 			s.SaveMsg <- &msg
 			break
 		}
