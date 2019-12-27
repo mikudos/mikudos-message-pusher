@@ -18,12 +18,8 @@ type Server struct {
 	Storage   db.Storage
 }
 
-func (s *Server) increment() {
-	s.AID++
-}
-
 func (s *Server) pushToModeChannel(req *pb.Message) {
-	s.increment()
+	s.AID++
 	switch s.Mode {
 	case "every":
 		for _, Ch := range s.EveryRecv {
