@@ -105,6 +105,7 @@ func (s *Server) GateStream(stream pb.MessagePusher_GateStreamServer) (err error
 		case pb.MessageType_REQUEST:
 			msgs, err := s.Storage.GetChannel(channelID, int64(msgID))
 			if err != nil {
+				log.Printf("storage error: %v\n", err)
 			}
 			for _, m := range msgs {
 				stream.Send(m)
