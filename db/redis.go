@@ -250,7 +250,7 @@ func (s *RedisStorage) GetChannel(key string, mid int64) ([]*pb.Message, error) 
 			delMsgs = append(delMsgs, cmid)
 			continue
 		}
-		m := &pb.Message{MsgId: cmid, Msg: rm.Msg, ChannelId: ""}
+		m := &pb.Message{MsgId: cmid, Msg: string(rm.Msg), ChannelId: ""}
 		msgs = append(msgs, m)
 	}
 	// delete unmarshal failed and expired message

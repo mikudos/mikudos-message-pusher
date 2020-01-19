@@ -116,7 +116,7 @@ func (s *MySQLStorage) GetChannel(key string, mid int64) ([]*pb.Message, error) 
 			log.Warn("user_key: \"%s\" mid: %d expired", key, cmid)
 			continue
 		}
-		msgs = append(msgs, &pb.Message{MsgId: cmid, ChannelId: key, Msg: json.RawMessage(msg), Expire: int32(expire), MessageType: pb.MessageType(pb.MessageType_RESPONSE)})
+		msgs = append(msgs, &pb.Message{MsgId: cmid, ChannelId: key, Msg: string(json.RawMessage(msg)), Expire: int32(expire), MessageType: pb.MessageType(pb.MessageType_RESPONSE)})
 	}
 	return msgs, nil
 }
