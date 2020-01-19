@@ -3,7 +3,6 @@ package db
 import (
 	"encoding/json"
 	"errors"
-	"fmt"
 
 	log "github.com/alecthomas/log4go"
 	pb "github.com/mikudos/mikudos-message-pusher/proto/message-pusher"
@@ -37,7 +36,6 @@ type Storage interface {
 
 // InitStorage init the storage type(mysql or redis).
 func InitStorage() (*Storage, error) {
-	fmt.Printf("conf: %v\n", Conf)
 	if Conf.StorageType == RedisStorageType {
 		UseStorage = NewRedisStorage()
 	} else if Conf.StorageType == MySQLStorageType {

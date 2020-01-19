@@ -3,7 +3,6 @@ package server
 import (
 	"context"
 	"errors"
-	"fmt"
 	"log"
 	"time"
 
@@ -74,7 +73,7 @@ func (s *Server) GateStream(stream pb.MessagePusher_GateStreamServer) (err error
 		break
 	}
 	go func() {
-		defer fmt.Printf("GateStream break\n")
+		defer log.Printf("GateStream break\n")
 		for {
 			select {
 			case <-stream.Context().Done():
@@ -127,7 +126,6 @@ func (s *Server) GateStream(stream pb.MessagePusher_GateStreamServer) (err error
 			log.Printf("channelID: %v\n", channelID)
 		}
 	}
-	fmt.Printf("GateStream break\n")
 	return err
 }
 

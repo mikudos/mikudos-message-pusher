@@ -9,10 +9,11 @@ require (
 	github.com/garyburd/redigo v1.6.0
 	github.com/go-sql-driver/mysql v1.4.1
 	github.com/golang/protobuf v1.3.2
+	github.com/micro/go-micro v1.18.0
 	github.com/mikudos/mikudos-schedule v0.0.0-20191202124640-ace53703b895
 	github.com/robfig/cron/v3 v3.0.0
 	github.com/samuel/go-zookeeper v0.0.0-20190923202752-2cc03de413da // indirect
 	github.com/spf13/viper v1.4.0
-	golang.org/x/net v0.0.0-20190522155817-f3200d17e092
+	golang.org/x/net v0.0.0-20191109021931-daa7c04131f5
 	google.golang.org/grpc v1.25.1
 )

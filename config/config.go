@@ -1,9 +1,8 @@
 package config
 
 import (
-	"fmt"
-
 	"github.com/spf13/viper"
+	"log"
 )
 
 // RuntimeViper viper Instance
@@ -20,6 +19,6 @@ func init() {
 	RuntimeViper.AddConfigPath("./config/") // path to look for the config file in
 	err := RuntimeViper.ReadInConfig()      // Find and read the config file
 	if err != nil {                         // Handle errors reading the config file
-		panic(fmt.Errorf("Fatal error config file: %s", err))
+		log.Fatalf("Fatal error config file: %s", err)
 	}
 }

@@ -123,7 +123,6 @@ func (s *RedisStorage) SaveChannel(key string, msg json.RawMessage, mid int64, e
 		log.Error("conn.Send(\"ZREMRANGEBYRANK\", \"%s\", 0, %d) error(%v)", key, -1*(Conf.RedisMaxStore+1), err)
 		return err
 	}
-	fmt.Printf("saveChannel\n")
 	if err = conn.Flush(); err != nil {
 		log.Error("conn.Flush() error(%v)", err)
 		return err
