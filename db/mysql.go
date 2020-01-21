@@ -16,7 +16,7 @@ import (
 
 const (
 	saveChannelMsgSQL       = "INSERT INTO channel_msg(skey,mid,ttl,msg,ctime,mtime) VALUES(?,?,?,?,?,?)"
-	getChannelMsgSQL        = "SELECT mid, ttl, msg FROM channel_msg WHERE skey=? AND mid>? ORDER BY mid"
+	getChannelMsgSQL        = "SELECT mid, ttl, msg FROM channel_msg WHERE skey=? AND mid>=? ORDER BY mid"
 	delResavedChannelMsgSQL = "DELETE FROM channel_msg WHERE skey=? AND mid=?"
 	delExpiredChannelMsgSQL = "DELETE FROM channel_msg WHERE ttl<=?"
 	delChannelMsgSQL        = "DELETE FROM channel_msg WHERE skey=?"
@@ -118,6 +118,7 @@ func (s *MySQLStorage) GetChannel(key string, mid int64) ([]*pb.Message, error) 
 		}
 		msgs = append(msgs, &pb.Message{MsgId: cmid, ChannelId: key, Msg: string(json.RawMessage(msg)), Expire: int32(expire), MessageType: pb.MessageType(pb.MessageType_RESPONSE)})
 	}
+	// fmt.Printf("GetChannel msgs: %v\n", msgs)
 	return msgs, nil
 }
 
