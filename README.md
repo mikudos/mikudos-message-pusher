@@ -14,11 +14,56 @@ package message_pusher;
 
 service Message_pusher {
   rpc GetConfig(ConfigRequest) returns (ConfigResponse) {}
+  rpc StateInfo(InfoRequest) returns (InfoResponse) {}
   rpc PushToChannel(PushMessage) returns (Response) {}
   rpc PushToChannelWithStatus(PushMessage) returns (Response) {}
   rpc GateStream(stream Response) returns (stream Message) {
   } // Gate communicate
 }
+
+message ConfigRequest { repeated string Keys = 1; }
+
+message ConfigResponse {}
+
+message InfoRequest {
+
+}
+
+message InfoResponse {
+
+}
+
+message PushMessage {
+  string msg = 2;
+  string channelId = 3;
+  int32 expire = 5;
+}
+
+message Message {
+  string msg = 2;
+  string channelId = 3;
+  int64 msgId = 4;
+  int32 expire = 5;
+  MessageType messageType = 7;
+}
+
+message Request { string name = 1; }
+
+message Response {
+  uint32 msgId = 1;
+  string channelId = 2;
+  string msg = 3;
+  int32 expire = 4;
+  MessageType messageType = 7;
+}
+
+enum MessageType { // message type
+  REQUEST = 0;
+  RESPONSE = 1;
+  RECEIVED = 2;
+  UNRECEIVED = 3;
+}
+
 ```
 
 This service can be called within your micro services cluster with any type of GRPC client.
