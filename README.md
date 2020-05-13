@@ -1,5 +1,7 @@
 ![Mikudos Plugin](https://img.shields.io/badge/MIKUDOS-Plugin-orange?style=for-the-badge&logo=appveyor)
 
+# [![Mikudos](https://raw.githubusercontent.com/mikudos/doc/master/mikudos-logo.png)](https://mikudos.github.io/doc)
+
 # mikudos-message-pusher
 
 mikudos-message-pusher is one mikudos plugin working as GRPC server. This service provide off-line message as well as on-line message.
@@ -59,4 +61,3 @@ redisSource:
 mySQLSource:
     'node1:1': 'root:MikudosMessagePusherServerPassword@(127.0.0.1:3306)/mikudos_message_pusher?parseTime=true&loc=Local&charset=utf8'
 ```
-
