@@ -133,3 +133,8 @@ func (s *Server) GateStream(stream pb.MessagePusher_GateStreamServer) (err error
 func (s *Server) GetConfig(ctx context.Context, req *pb.ConfigRequest) (*pb.ConfigResponse, error) {
 	return &pb.ConfigResponse{}, nil
 }
+
+// StateInfo StateInfo
+func (s *Server) StateInfo(ctx context.Context, req *pb.InfoRequest) (*pb.InfoResponse, error) {
+	return &pb.InfoResponse{}, nil
+}
