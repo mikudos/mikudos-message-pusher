@@ -2,7 +2,7 @@
 
 # mikudos-message-pusher
 
-mikudos-message-pusher as mikudos plugin use GRPC in Golang.
+mikudos-message-pusher is one mikudos plugin working as GRPC server. This service provide off-line message as well as on-line message.
 
 this service provide several GRPC service method as following
 
