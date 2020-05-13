@@ -1,5 +1,5 @@
 GOPATH:=$(shell go env GOPATH)
-NAME := mikudos-schedule-srv
+NAME := mikudos-message-pusher-srv
 SERVICE_VERSION := 0.0.1
 PORT := 50051
 
@@ -21,7 +21,7 @@ run-docker:
 
 .PHONY: run-client
 run-client:
-	grpcc --proto ./proto/schedule/schedule.proto --address 127.0.0.1:$(PORT) -i
+	grpcc --proto ./proto/message-pusher/message-pusher.proto --address 127.0.0.1:$(PORT) -i
 	# client.listSchedule({}, sr).on("data", data=>{console.log(data)})
 
 .PHONY: git
