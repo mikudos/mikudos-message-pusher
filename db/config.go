@@ -48,7 +48,7 @@ func InitConfig() error {
 		MaxProc:    runtime.NumCPU(),
 		PprofBind:  []string{"localhost:6379"},
 		// storage
-		StorageType: config.RuntimeViper.Get("StorageType").(string),
+		StorageType: config.RuntimeViper.Get("storageType").(string),
 		// redis
 		RedisIdleTimeout: 28800 * time.Second,
 		RedisMaxIdle:     50,
