@@ -103,6 +103,7 @@ func NewRedisStorage() *RedisStorage {
 
 // SaveChannel implements the Storage SaveChannel method.
 func (s *RedisStorage) SaveChannel(key string, msg json.RawMessage, mid int64, expire uint) error {
+	// !TODO: check if mid with key exists, if exists then return
 	rm := &RedisChannelMessage{Msg: msg, Expire: int64(expire) + time.Now().Unix()}
 	m, err := json.Marshal(rm)
 	if err != nil {
@@ -140,6 +141,7 @@ func (s *RedisStorage) SaveChannel(key string, msg json.RawMessage, mid int64, e
 
 // SaveChannels implements the Storage SaveChannels method.
 func (s *RedisStorage) SaveChannels(keys []string, msg json.RawMessage, mid int64, expire uint) (fkeys []string, err error) {
+	// !TODO: check if mid with key exists, if exists then return
 	// split as node
 	nodes := map[string][]string{}
 	fkeysMap := make(map[string]bool, len(keys))

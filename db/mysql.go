@@ -72,6 +72,7 @@ func NewMySQLStorage() *MySQLStorage {
 
 // SaveChannel implements the Storage SaveChannel method.
 func (s *MySQLStorage) SaveChannel(key string, msg json.RawMessage, mid int64, expire uint) error {
+	// !TODO: check if mid with key exists, if exists then return
 	db := s.getConn(key)
 	if db == nil {
 		return ErrNoMySQLConn

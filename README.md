@@ -74,6 +74,12 @@ Every message will be send automaticaly to the mikudos-gate server, when the cor
 
 This service support 3 different working mode. They are "unify", "group" and "every". This setting can be modified in config directory with yaml file.
 
+Currently only support unify mode.
+
+Mikudos-message-pusher delivery message after receive push message call immediately, then it will choose to save this messge depends on online user resaved or not.
+
+IMPORTENT: Mikudos-message-pusher service will receive response from mikudos-gate server after the message has delivered to it. If the corresponding user not on that mikudos-gate server or mikudos-gate server group(grouped with redisAdapter), the response of unreceived will be send back. The unreceived responce will emit one saveMessage event, which cause message saved to the Storage.
+
 ```yaml
 # Copyright (c) All contributors. All rights reserved.
 # Licensed under the MIT license. See LICENSE file in the project root for full license information.
@@ -88,7 +94,7 @@ port: 50051
 # At every mode, message pusher will send message to every mikudos gate, which is connected to the message pusher service.
 # default value is "unify"
 ####################
-mode: 'group'
+mode: 'unify'
 ####################
 # storageType set the storage engine for message.
 # supported values are: "redis", "mysql"
