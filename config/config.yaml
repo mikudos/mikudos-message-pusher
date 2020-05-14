@@ -7,7 +7,7 @@ port: 50051
 # PUSH MODE
 # support values are: "unify", "group", "every"
 # At unify mode, message pusher will send one time randomly per message, this mode passt to the unify adapted mikudos gate
-# At group mode, message pusher will use the groupId value keyed with group in META_DATA, which is send with from mikudos gate or other grpc message pusher client.
+# At group mode, message pusher will send message to randomly gate-node in every group use the groupId value keyed with group in META_DATA, which is send with from mikudos gate.
 # At every mode, message pusher will send message to every mikudos gate, which is connected to the message pusher service.
 # default value is "unify"
 ####################
