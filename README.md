@@ -12,7 +12,7 @@ this service provide several GRPC service method as following
 syntax = "proto3";
 package message_pusher;
 
-service Message_pusher {
+service MessagePusher {
   rpc GetConfig(ConfigRequest) returns (ConfigResponse) {}
   rpc StateInfo(InfoRequest) returns (InfoResponse) {}
   rpc PushToChannel(PushMessage) returns (Response) {}

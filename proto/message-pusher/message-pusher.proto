@@ -1,7 +1,7 @@
 syntax = "proto3";
 package message_pusher;
 
-service Message_pusher {
+service MessagePusher {
   rpc GetConfig(ConfigRequest) returns (ConfigResponse) {}
   rpc StateInfo(InfoRequest) returns (InfoResponse) {}
   rpc PushToChannel(PushMessage) returns (Response) {}
@@ -14,13 +14,9 @@ message ConfigRequest { repeated string Keys = 1; }
 
 message ConfigResponse {}
 
-message InfoRequest {
+message InfoRequest {}
 
-}
-
-message InfoResponse {
-  
-}
+message InfoResponse {}
 
 message PushMessage {
   string msg = 2;
