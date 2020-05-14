@@ -76,6 +76,8 @@ This service support 3 different working mode. They are "unify", "group" and "ev
 
 Currently only support unify mode.
 
+Under group or every work mode, mikudos-message-pusher should work with one mikudos-message-deliver togather, which in still in plan ;). That deliver will handle every received message(transfered from mikudos-message-pusher), and remove saved message under mistake after a time delay.
+
 Mikudos-message-pusher delivery message after receive push message call immediately, then it will choose to save this messge depends on online user resaved or not.
 
 IMPORTENT: Mikudos-message-pusher service will receive response from mikudos-gate server after the message has delivered to it. If the corresponding user not on that mikudos-gate server or mikudos-gate server group(grouped with redisAdapter), the response of unreceived will be send back. The unreceived responce will emit one saveMessage event, which cause message saved to the Storage.
