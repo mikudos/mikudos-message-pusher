@@ -21,7 +21,7 @@ func init() {
 	if !collection.Collect(defaults).Contains(mode) {
 		mode = "unify"
 	}
-	Handler = Server{Mode: mode, Recv: make(chan *pb.Message), Returned: make(map[string]map[uint32]chan *pb.Response), GroupRecv: make(map[string]chan *pb.Message), EveryRecv: make(map[uint32]chan *pb.Message), SaveMsg: make(chan *pb.Message)}
+	Handler = Server{Recv: make(chan *pb.Message), Returned: make(map[string]map[uint32]chan *pb.Response), GroupRecv: make(map[string]chan *pb.Message), EveryRecv: make(map[uint32]chan *pb.Message), SaveMsg: make(chan *pb.Message)}
 
 	db.InitConfig()
 	storage, err := db.InitStorage()

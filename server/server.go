@@ -9,7 +9,6 @@ import (
 type Server struct {
 	AID       uint32
 	streamID  uint32
-	Mode      string
 	Recv      chan *pb.Message
 	Returned  map[string]map[uint32]chan *pb.Response
 	GroupRecv map[string]chan *pb.Message
@@ -20,7 +19,7 @@ type Server struct {
 
 func (s *Server) pushToModeChannel(req *pb.Message) {
 	s.AID++
-	switch s.Mode {
+	switch db.PushMode {
 	case "every":
 		for _, Ch := range s.EveryRecv {
 			Ch <- req

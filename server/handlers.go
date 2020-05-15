@@ -6,6 +6,8 @@ import (
 	"log"
 	"time"
 
+	"github.com/mikudos/mikudos-message-pusher/db"
+
 	pb "github.com/mikudos/mikudos-message-pusher/proto/message-pusher"
 	"google.golang.org/grpc/metadata"
 )
@@ -58,7 +60,7 @@ func (s *Server) GateStream(stream pb.MessagePusher_GateStreamServer) (err error
 			GroupID = md["group"][0]
 		}
 	}
-	switch s.Mode {
+	switch db.PushMode {
 	case "every":
 		s.streamID++
 		GateID = s.streamID

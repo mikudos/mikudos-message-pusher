@@ -103,7 +103,6 @@ func NewRedisStorage() *RedisStorage {
 
 // SaveChannel implements the Storage SaveChannel method.
 func (s *RedisStorage) SaveChannel(key string, msg json.RawMessage, mid int64, expire uint) error {
-	// !TODO: check if mid with key exists, if exists then return
 	rm := &RedisChannelMessage{Msg: msg, Expire: int64(expire) + time.Now().Unix()}
 	m, err := json.Marshal(rm)
 	if err != nil {
@@ -116,6 +115,15 @@ func (s *RedisStorage) SaveChannel(key string, msg json.RawMessage, mid int64, e
 		return RedisNoConnErr
 	}
 	defer conn.Close()
+	// check if mid with key exists, if exists then return
+	if PushMode == "group" || PushMode == "every" {
+		err = conn.Send("ZCOUNT", key, mid, mid)
+		err = conn.Flush()
+		v, err := conn.Receive()
+		if err != nil || v.(int64) > 0 {
+			return err
+		}
+	}
 	if err = conn.Send("ZADD", key, mid, m); err != nil {
 		log.Error("conn.Send(\"ZADD\", \"%s\", %d, \"%s\") error(%v)", key, mid, string(m), err)
 		return err

@@ -5,6 +5,7 @@ import (
 	"errors"
 
 	log "github.com/alecthomas/log4go"
+	"github.com/mikudos/mikudos-message-pusher/config"
 	pb "github.com/mikudos/mikudos-message-pusher/proto/message-pusher"
 )
 
@@ -18,6 +19,7 @@ const (
 var (
 	UseStorage     Storage
 	ErrStorageType = errors.New("unknown storage type")
+	PushMode       = config.RuntimeViper.GetString("mode")
 )
 
 // Stored messages interface
