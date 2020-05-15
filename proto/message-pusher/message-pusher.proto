@@ -6,6 +6,8 @@ service MessagePusher {
   rpc StateInfo(InfoRequest) returns (InfoResponse) {}
   rpc PushToChannel(PushMessage) returns (Response) {}
   rpc PushToChannelWithStatus(PushMessage) returns (Response) {}
+  rpc DeleverRemoveMessage(DeliverRemoveRequest)
+      returns (DeliverRemoveResponse) {}
   rpc GateStream(stream Response) returns (stream Message) {
   } // Gate communicate
 }
@@ -48,3 +50,10 @@ enum MessageType { // message type
   RECEIVED = 2;
   UNRECEIVED = 3;
 }
+
+message DeliverRemoveRequest {
+  uint32 msgId = 2;
+  string channelId = 1;
+}
+
+message DeliverRemoveResponse { bool result = 1; }
