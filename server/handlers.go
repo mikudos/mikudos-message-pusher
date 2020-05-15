@@ -49,6 +49,14 @@ func (s *Server) PushToChannelWithStatus(ctx context.Context, req *pb.PushMessag
 	}
 }
 
+// DeliverRemoveMessage DeliverRemoveMessage
+func (s *Server) DeliverRemoveMessage(ctx context.Context, req *pb.DeliverRemoveRequest) (*pb.DeliverRemoveResponse, error) {
+	channelID := req.GetChannelId()
+	mid := req.GetMsgId()
+	s.Storage.PushDel(channelID, mid)
+	return &pb.DeliverRemoveResponse{}, nil
+}
+
 // GateStream gate stream communication
 func (s *Server) GateStream(stream pb.MessagePusher_GateStreamServer) (err error) {
 	var (
